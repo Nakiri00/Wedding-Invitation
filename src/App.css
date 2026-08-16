@@ -35,6 +35,185 @@ a { color: inherit; }
 .personal-bar { background: var(--sage-dark); color: white; }
 .token-banner code { background: rgba(255,255,255,.6); padding: 2px 5px; border-radius: 4px; }
 
+.gate-overlay {
+  position: fixed;
+  inset: 0; /* Menutupi seluruh layar (top, left, right, bottom 0) */
+  z-index: 9999; /* Pastikan selalu berada di paling atas */
+  background-color: #1a362f; /* Warna hijau gelap, sesuaikan dengan tema Anda */
+  
+  /* Jika Anda punya gambar background teratai, uncomment baris di bawah ini: */
+  /* background-image: url('/path/to/teratai-bg.jpg'); */
+  /* background-size: cover; */
+  /* background-position: center; */
+  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: #fcfcfc;
+  
+  /* Animasi Transisi Gerbang Membuka (Slide Up) */
+  transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1), opacity 1.2s ease-in-out;
+}
+
+/* State ketika gerbang terbuka */
+.gate-overlay.is-open {
+  transform: translateY(-100vh); /* Menggeser layar ke atas sampai hilang */
+  opacity: 0;
+  pointer-events: none; /* Agar tidak bisa di-klik lagi setelah terbuka */
+}
+
+/* Konten di dalam gerbang */
+.gate-content {
+  padding: 2rem;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.lotus-icon {
+  font-size: 3rem;
+  animation: pulse 2s infinite alternate; /* Sedikit efek nafas/detak */
+}
+
+.gate-kicker {
+  font-size: 0.8rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #e5e7eb;
+}
+
+.gate-title {
+  font-size: 2.5rem;
+  font-family: serif; /* Ganti dengan font kaligrafi Anda jika ada */
+  margin: 0;
+}
+
+.gate-guest-box {
+  background: rgba(255, 255, 255, 0.1); /* Efek kaca transparan (Glassmorphism) */
+  backdrop-filter: blur(8px);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 100%;
+}
+
+.gate-guest-box p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #e5e7eb;
+}
+
+.gate-guest-box h2 {
+  margin: 0.5rem 0;
+  font-size: 1.5rem;
+  font-family: serif;
+}
+
+.open-gate-btn {
+  width: 100%;
+  padding: 0.8rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+/* Animasi untuk ikon */
+@keyframes pulse {
+  from { transform: scale(1); opacity: 0.8; }
+  to { transform: scale(1.1); opacity: 1; }
+}
+
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999; 
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: max-content;
+  max-width: 350px; 
+  pointer-events: none; 
+}
+
+.toast {
+  pointer-events: auto; 
+  background-color: #ffffff;
+  padding: 1rem 1.2rem;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  border-left: 4px solid #1a362f; 
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  
+  animation: slideInRight 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.toast span {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #6b7280;
+}
+
+.toast strong {
+  font-size: 0.95rem;
+  color: #111827;
+}
+
+.toast small {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.toast.toast-error {
+  border-left-color: #ef4444; 
+}
+
+.toast.toast-success {
+  border-left-color: #10b981; 
+}
+
+@keyframes slideInRight {
+  from { 
+    transform: translateX(120%); 
+    opacity: 0; 
+  }
+  to { 
+    transform: translateX(0); 
+    opacity: 1; 
+  }
+}
+
+@media (max-width: 600px) {
+  .toast-container {
+    bottom: 16px;
+    right: 16px;
+    left: 16px; 
+    width: auto;
+    max-width: none;
+  }
+}
+
+.toast-closing {
+  animation: slideOutRight 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
+}
+
+@keyframes slideOutRight {
+  from { 
+    transform: translateX(0); 
+    opacity: 1; 
+  }
+  to { 
+    transform: translateX(120%); 
+    opacity: 0; 
+  }
+}
+
 .site-header {
   position: fixed; top: 18px; left: 50%; transform: translateX(-50%);
   width: min(1180px, calc(100% - 32px)); z-index: 50;
@@ -273,6 +452,7 @@ legend { margin-bottom:10px; }
 .message-item:first-child { padding-top:0; }
 .message-quote { position:absolute; left:0; top:22px; color:var(--rose); font:60px/.5 'Cormorant Garamond'; }
 .message-item:first-child .message-quote { top:0; }
+
 .message-item p { margin:0 0 18px; font:400 23px/1.25 'Cormorant Garamond'; }
 .message-item strong { font-size:10px; }
 .message-item small { margin-left:10px; color:var(--ink-soft); font-size:9px; }
@@ -371,7 +551,7 @@ legend { margin-bottom:10px; }
 .panel h2 { margin:5px 0 0; font:500 29px/.95 'Cormorant Garamond',serif; }
 .inline-form { display:grid; grid-template-columns:1.2fr 1fr .55fr auto; gap:10px; align-items:end; }
 .inline-form .primary-button { padding:12px 18px; }
-.message-admin-list { display:grid; gap:10px; max-height:360px; overflow:auto; }
+.message-admin-list { display:grid; gap:10px; }
 .admin-message { display:flex; justify-content:space-between; gap:14px; padding:13px; border:1px solid var(--line); border-radius:14px; background:white; }
 .admin-message strong { font-size:12px; }
 .admin-message p { margin:5px 0; font-size:11px; line-height:1.5; color:var(--ink-soft); }

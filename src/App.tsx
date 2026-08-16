@@ -61,7 +61,7 @@ function WeddingInvitationApp() {
 
   return (
     <InvitationGate
-      guestName={invitation?.guestName ?? weddingConfig.invitedGuest}
+      guestName={invitation?.guestName ?? 'Unknown Guest'}
       valid={invitationValid}
       loading={invitationLoading}
       error={invitationError}
@@ -105,6 +105,7 @@ function WeddingInvitationApp() {
           validToken={invitationValid}
           quota={invitation?.quota ?? 0}
           existingRSVP={existingRsvp}
+          guestName={invitation?.guestName ?? 'Unknown Guest'}
           onSubmit={handleRSVP}
         />
         <MessageSection

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { FormEvent } from 'react'
 import type { RSVPSubmission } from '../types/wedding'
 import { Reveal } from './Reveal'
@@ -9,16 +9,24 @@ interface RSVPSectionProps {
   validToken: boolean
   quota: number
   existingRSVP: RSVPSubmission | null
+  guestName: string 
   onSubmit: (submission: RSVPSubmission) => void
 }
 
-export function RSVPSection({ token, validToken, quota, existingRSVP, onSubmit }: RSVPSectionProps) {
-  const [name, setName] = useState('')
+export function RSVPSection({ token, validToken, quota, existingRSVP, guestName, onSubmit }: RSVPSectionProps) {
+  const [name, setName] = useState(guestName || '')
+  
   const [attendance, setAttendance] = useState<'attending' | 'not_attending'>('attending')
   const [guests, setGuests] = useState(1)
   const [babyCount, setBabyCount] = useState(0)
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (guestName) {
+      setName(guestName)
+    }
+  }, [guestName])
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -102,7 +110,7 @@ export function RSVPSection({ token, validToken, quota, existingRSVP, onSubmit }
             <div className="form-row">
               <label>
                 Nama tamu
-                <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nama sesuai undangan" autoComplete="name" />
+                <input value={name} onChange={(e) => setName(e.target.value)} placeholder={guestName || 'Nama Anda'} autoComplete="name" />
               </label>
             </div>
             <fieldset>
