@@ -1,0 +1,128 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum InvitationStatus {
+  ACTIVE
+  REVOKED
+}
+
+enum AttendanceStatus {
+  ATTENDING
+  NOT_ATTENDING
+}
+
+enum MessageStatus {
+  PENDING
+  PUBLISHED
+  HIDDEN
+}
+
+enum UserRole {
+  ADMIN
+  STAFF
+}
+
+enum CheckInSource {
+  STAFF
+  WALK_IN
+}
+
+model User {
+  id           String       @id @default(cuid())
+  email        String       @unique @db.VarChar(191)
+  passwordHash String       @db.VarChar(255)
+  name         String       @db.VarChar(120)
+  role         UserRole     @default(STAFF)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  attendances  Attendance[]
+  auditLogs    AuditLog[]
+}
+
+model Invitation {
+  id         String           @id @default(cuid())
+  token      String           @unique @db.VarChar(64)
+  guestName  String           @db.VarChar(160)
+  contact    String?          @db.VarChar(120)
+  quota      Int
+  status     InvitationStatus @default(ACTIVE)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  guests     Guest[]
+  rsvp       RSVP?
+  attendance Attendance?
+  messages   Message[]
+
+  @@index([status])
+}
+
+model Guest {
+  id           String     @id @default(cuid())
+  invitationId String
+  name         String     @db.VarChar(160)
+  contact      String?    @db.VarChar(120)
+  countedGuest Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@index([invitationId])
+}
+
+model RSVP {
+  id             String           @id @default(cuid())
+  invitationId   String           @unique
+  name           String           @db.VarChar(160)
+  attendance     AttendanceStatus
+  guestCount     Int
+  babyCount      Int              @default(0)
+  qrToken        String?          @unique @db.VarChar(64)
+  submittedAt    DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  invitation     Invitation       @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+}
+
+model Attendance {
+  id             String         @id @default(cuid())
+  invitationId   String         @unique
+  checkedInAt    DateTime       @default(now())
+  checkedInById  String?
+  source         CheckInSource  @default(STAFF)
+  invitation     Invitation     @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  checkedInBy    User?          @relation(fields: [checkedInById], references: [id], onDelete: SetNull)
+
+  @@index([checkedInAt])
+}
+
+model Message {
+  id           String         @id @default(cuid())
+  invitationId String?
+  guestName    String         @db.VarChar(160)
+  message      String         @db.VarChar(1000)
+  status       MessageStatus  @default(PENDING)
+  createdAt    DateTime       @default(now())
+  moderatedAt  DateTime?
+  invitation   Invitation?    @relation(fields: [invitationId], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
+  @@index([invitationId])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  action     String   @db.VarChar(80)
+  entity     String   @db.VarChar(80)
+  entityId   String?  @db.VarChar(64)
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  actor      User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
