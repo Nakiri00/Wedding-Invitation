@@ -7,10 +7,23 @@ services:
       MYSQL_USER: wedding
       MYSQL_PASSWORD: wedding_password
       MYSQL_ROOT_PASSWORD: root_password
-    ports:
-      - "3306:3306"
     volumes:
       - wedding_mysql_data:/var/lib/mysql
+
+  backend:
+    build:
+      context: .
+      target: runtime 
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:4000:4000" 
+    environment:
+      - DATABASE_URL=mysql://wedding:wedding_password@mysql:3306/wedding
+      - NODE_ENV=production
+      - WEB_ORIGIN=${WEB_ORIGIN}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - mysql
 
 volumes:
   wedding_mysql_data:
