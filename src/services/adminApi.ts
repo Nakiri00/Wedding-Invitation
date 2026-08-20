@@ -1,6 +1,6 @@
 const API_URL = (import.meta.env.VITE_API_URL ?? 'http://localhost:4000/api').replace(/\/$/, '')
 
-export interface AuthSession { user: { id: string; name: string; email?: string; role: 'ADMIN' | 'STAFF' } }
+export interface AuthSession { user: { id: string; name: string; email?: string; role: 'ADMIN' | 'STAFF' }; csrfToken?:string }
 export interface AdminGuest { id: string; name: string; contact: string | null; countedGuest: boolean }
 export interface AdminInvitation { id: string; token: string; guestName: string; contact: string | null; quota: number; status: 'ACTIVE' | 'REVOKED'; guests: AdminGuest[]; rsvp: { attendance: 'ATTENDING' | 'NOT_ATTENDING'; guestCount: number; babyCount: number; submittedAt: string } | null; checkedInAt: string | null; checkInSource: 'STAFF' | 'WALK_IN' | null; createdAt: string }
 export interface AdminMessage { id: string; guestName: string; message: string; status: 'PENDING' | 'PUBLISHED' | 'HIDDEN'; createdAt: string; invitation: { guestName: string; token: string } | null }
@@ -9,32 +9,133 @@ export interface Overview {
   invitedSeats: number; confirmedSeats: number; confirmationRate: number; checkInRate: number
 }
 
-function readCookie(name: string) {
-  const prefix = `${name}=`
-  return document.cookie.split('; ').find((part) => part.startsWith(prefix))?.slice(prefix.length) ?? null
+let csrfToken: string | null = null;
+let csrfRequest: Promise<string> | null = null;
+
+async function ensureCsrf(): Promise<string> {
+  if (csrfToken) return csrfToken;
+
+  if (!csrfRequest) {
+    csrfRequest = (async () => {
+      const response = await fetch(`${API_URL}/auth/csrf`, {
+        credentials: 'include',
+      });
+
+      const payload = (await response.json().catch(() => ({}))) as {
+        data?: {
+          ready: boolean;
+          csrfToken: string;
+        };
+        message?: string;
+      };
+
+      const token = payload.data?.csrfToken;
+
+      if (!response.ok || !token) {
+        throw new Error(
+          payload.message ?? 'Gagal memperoleh token keamanan.',
+        );
+      }
+
+      return token;
+    })();
+  }
+
+  try {
+    csrfToken = await csrfRequest;
+    return csrfToken;
+  } finally {
+    csrfRequest = null;
+  }
 }
 
-async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const method = options?.method?.toUpperCase() ?? 'GET'
-  const headers: Record<string, string> = { ...(options?.body ? { 'Content-Type': 'application/json' } : {}), ...(options?.headers as Record<string, string> | undefined) }
+async function request<T>(
+  path: string,
+  options?: RequestInit,
+): Promise<T> {
+  const method = options?.method?.toUpperCase() ?? 'GET';
+
+  const headers: Record<string, string> = {
+    ...(options?.body
+      ? {
+          'Content-Type': 'application/json',
+        }
+      : {}),
+    ...(options?.headers as Record<string, string> | undefined),
+  };
+
   if (['POST', 'PATCH', 'PUT', 'DELETE'].includes(method)) {
-    const csrf = readCookie('han_wedding_csrf')
-    if (csrf) headers['X-CSRF-Token'] = decodeURIComponent(csrf)
+    headers['X-CSRF-Token'] = await ensureCsrf();
   }
-  const response = await fetch(`${API_URL}${path}`, { ...options, credentials: 'include', headers })
-  const payload = await response.json().catch(() => ({})) as { data?: T; message?: string }
-  if (!response.ok) throw new Error(payload.message ?? 'Permintaan gagal.')
-  return payload.data as T
+
+  const response = await fetch(`${API_URL}${path}`, {
+    ...options,
+    credentials: 'include',
+    headers,
+  });
+
+  const payload = (await response.json().catch(() => ({}))) as {
+    data?: T;
+    message?: string;
+  };
+
+  if (!response.ok) {
+    if (response.status === 403) {
+      csrfToken = null;
+    }
+
+    throw new Error(payload.message ?? 'Permintaan gagal.');
+  }
+
+  const result = payload.data as T;
+
+  if (result && typeof result === 'object') {
+    const nextCsrfToken = (
+      result as {
+        csrfToken?: unknown;
+      }
+    ).csrfToken;
+
+    if (typeof nextCsrfToken === 'string') {
+      csrfToken = nextCsrfToken;
+    }
+  }
+
+  return result;
 }
 
 export const adminApi = {
-  csrf: () => request<{ ready: boolean }>('/auth/csrf'),
-  login: async (email: string, password: string) => {
-    await request<{ ready: boolean }>('/auth/csrf')
-    return request<AuthSession>('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) })
+  csrf: () =>
+    request<{
+      ready: boolean;
+      csrfToken: string;
+    }>('/auth/csrf'),
+
+  login: (email: string, password: string) =>
+    request<AuthSession>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    }),
+
+  me: () =>
+    request<{
+      user: AuthSession['user'];
+    }>('/auth/me'),
+
+  logout: async () => {
+    const result = await request<{
+      success: boolean;
+    }>('/auth/logout', {
+      method: 'POST',
+    });
+
+    csrfToken = null;
+    return result;
   },
-  me: () => request<{ user: AuthSession['user'] }>('/auth/me'),
-  logout: () => request<{ success: boolean }>('/auth/logout', { method: 'POST' }),
+  // Pertahankan seluruh method lainnya seperti sebelumnya.
   overview: () => request<Overview>('/admin/overview'),
   invitations: () => request<AdminInvitation[]>('/admin/invitations'),
   createInvitation: (payload: { guestName: string; contact?: string; quota: number }) => request<AdminInvitation>('/admin/invitations', { method: 'POST', body: JSON.stringify(payload) }),

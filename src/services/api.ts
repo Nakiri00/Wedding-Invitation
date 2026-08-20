@@ -1,29 +1,107 @@
-const API_URL = (import.meta.env.VITE_API_URL ?? 'http://localhost:4000/api').replace(/\/$/, '')
+const API_URL = (
+  import.meta.env.VITE_API_URL ??
+  'http://localhost:4000/api'
+).replace(/\/$/, '');
 
-interface ApiEnvelope<T> { data: T; error?: string; message?: string }
+// interface ApiEnvelope<T> {
+//   data: T;
+//   error?: string;
+//   message?: string;
+// }
 
-function readCookie(name: string) {
-  const prefix = `${name}=`
-  return document.cookie.split('; ').find((part) => part.startsWith(prefix))?.slice(prefix.length) ?? null
-}
+let csrfToken: string | null = null;
+let csrfRequest: Promise<string> | null = null;
 
-async function ensureCsrf() {
-  if (readCookie('han_wedding_csrf')) return
-  await fetch(`${API_URL}/auth/csrf`, { credentials: 'include' })
-}
+async function ensureCsrf(): Promise<string> {
+  if (csrfToken) return csrfToken;
 
-async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const method = options?.method?.toUpperCase() ?? 'GET'
-  const headers: Record<string, string> = { ...(options?.body ? { 'Content-Type': 'application/json' } : {}), ...(options?.headers as Record<string, string> | undefined) }
-  if (['POST', 'PATCH', 'PUT', 'DELETE'].includes(method)) {
-    await ensureCsrf()
-    const csrf = readCookie('han_wedding_csrf')
-    if (csrf) headers['X-CSRF-Token'] = decodeURIComponent(csrf)
+  if (!csrfRequest) {
+    csrfRequest = (async () => {
+      const response = await fetch(`${API_URL}/auth/csrf`, {
+        credentials: 'include',
+      });
+
+      const payload = (await response.json().catch(() => ({}))) as {
+        data?: {
+          ready: boolean;
+          csrfToken: string;
+        };
+        message?: string;
+      };
+
+      const token = payload.data?.csrfToken;
+
+      if (!response.ok || !token) {
+        throw new Error(
+          payload.message ?? 'Gagal memperoleh token keamanan.',
+        );
+      }
+
+      return token;
+    })();
   }
-  const response = await fetch(`${API_URL}${path}`, { ...options, credentials: 'include', headers })
-  const payload = (await response.json().catch(() => ({}))) as Partial<ApiEnvelope<T>>
-  if (!response.ok) throw new Error(payload.message ?? 'Permintaan ke server gagal.')
-  return payload.data as T
+
+  try {
+    csrfToken = await csrfRequest;
+    return csrfToken;
+  } finally {
+    csrfRequest = null;
+  }
+}
+
+async function request<T>(
+  path: string,
+  options?: RequestInit,
+): Promise<T> {
+  const method = options?.method?.toUpperCase() ?? 'GET';
+
+  const headers: Record<string, string> = {
+    ...(options?.body
+      ? {
+          'Content-Type': 'application/json',
+        }
+      : {}),
+    ...(options?.headers as Record<string, string> | undefined),
+  };
+
+  if (['POST', 'PATCH', 'PUT', 'DELETE'].includes(method)) {
+    headers['X-CSRF-Token'] = await ensureCsrf();
+  }
+
+  const response = await fetch(`${API_URL}${path}`, {
+    ...options,
+    credentials: 'include',
+    headers,
+  });
+
+  const payload = (await response.json().catch(() => ({}))) as {
+    data?: T;
+    message?: string;
+  };
+
+  if (!response.ok) {
+    if (response.status === 403) {
+      csrfToken = null;
+    }
+
+    throw new Error(payload.message ?? 'Permintaan gagal.');
+  }
+
+  const result = payload.data as T;
+
+  if (result && typeof result === 'object') {
+    const nextCsrfToken = (
+      result as {
+        csrfToken?: unknown;
+      }
+    ).csrfToken;
+
+    if (typeof nextCsrfToken === 'string') {
+      csrfToken = nextCsrfToken;
+    }
+  }
+
+  return result;
 }
 
 export const weddingApi = {

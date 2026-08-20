@@ -35,7 +35,7 @@ const navSectionIds = navItems.map(({ id }) => id)
 function App() {
   const path = window.location.hash.slice(1) || '/'
   if (path.startsWith('/admin') || path === '/admin') return <Suspense fallback={null}><ConsoleApp section="admin" /></Suspense>
-  if (path.startsWith('/staff') || path === '/staff') return <Suspense fallback={null}><ConsoleApp section="staff" /></Suspense>
+  if (path.startsWith('/staff') || path === '/admin') return <Suspense fallback={null}><ConsoleApp section="staff" /></Suspense>
   return <WeddingInvitationApp />
 }
 
