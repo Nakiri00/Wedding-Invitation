@@ -36,6 +36,58 @@
 .wedding-ui .section { position: relative; padding: 120px 0; }
 .wedding-ui .section-deep { position: relative; min-height: 620px; }
 
+.invitation-status-alert {
+  position: fixed;
+  top: max(14px, env(safe-area-inset-top));
+  left: 50%;
+  z-index: 10000;
+
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  width: min(680px, calc(100% - 28px));
+  padding: 14px 16px;
+
+  color: #fff;
+  background: linear-gradient(135deg, #991b1b, #7f1d1d);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 14px;
+  box-shadow:
+    0 14px 35px rgba(69, 10, 10, 0.35),
+    0 4px 12px rgba(69, 10, 10, 0.24);
+
+  transform: translateX(-50%);
+}
+
+.invitation-status-alert__icon {
+  display: grid;
+  flex: 0 0 26px;
+  place-items: center;
+
+  width: 26px;
+  height: 26px;
+
+  color: #991b1b;
+  font-weight: 800;
+  background: #fff;
+  border-radius: 50%;
+}
+
+.invitation-status-alert strong {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.invitation-status-alert p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
 /* -------------------------------------------------------------------------- */
 /* Cover                                                                       */
 /* -------------------------------------------------------------------------- */
@@ -977,6 +1029,15 @@
   .wedding-ui .closing-content > p:not(.eyebrow) { font-size: 18px; }
   .wedding-ui .closing-border { width: 210vw; bottom: -18px; }
   .wedding-ui .closing-canopy { width: 150vw; top: -2%; opacity: .26; }
+}
+
+@media (max-width: 480px) {
+  .invitation-status-alert {
+    top: max(10px, env(safe-area-inset-top));
+    width: calc(100% - 20px);
+    padding: 12px 13px;
+    border-radius: 12px;
+  }
 }
 
 @media (max-height: 760px) and (max-width: 640px) {

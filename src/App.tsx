@@ -55,6 +55,31 @@ function WeddingInvitationApp() {
 
   const { invitation, loading: invitationLoading, error: invitationError } = useInvitation(invitationToken)
   const invitationValid = Boolean(invitation && invitation.status === 'ACTIVE')
+  const invalidInvitationMessage = useMemo(() => {
+    if (invitationLoading || invitationValid) {
+      return null;
+    }
+
+    if (!invitationToken) {
+      return 'Link undangan tidak valid. Silakan gunakan link resmi yang diberikan oleh pengantin.';
+    }
+
+    if (invitation?.status === 'REVOKED') {
+      return 'Undangan ini sudah tidak aktif. Silakan hubungi pengantin untuk informasi lebih lanjut.';
+    }
+
+    if (invitationError || !invitation) {
+      return 'Undangan tidak ditemukan atau nama tamu tidak terdaftar.';
+    }
+
+    return null;
+  }, [
+    invitation,
+    invitationError,
+    invitationLoading,
+    invitationToken,
+    invitationValid,
+  ]);
   const existingRsvp = rsvp ?? (invitation?.rsvp ? {
     name: invitation.rsvp.name,
     attendance: invitation.rsvp.attendance,
@@ -108,6 +133,25 @@ function WeddingInvitationApp() {
 
   return (
     <div className="wedding-ui">
+      {invalidInvitationMessage && (
+        <div
+          className="invitation-status-alert"
+          role="alert"
+          aria-live="assertive"
+        >
+          <span
+            className="invitation-status-alert__icon"
+            aria-hidden="true"
+          >
+            !
+          </span>
+
+          <div>
+            <strong>Undangan tidak dapat dibuka</strong>
+            <p>{invalidInvitationMessage}</p>
+          </div>
+        </div>
+      )}
       <audio
         ref={audioRef}
         src={weddingConfig.music.src}
