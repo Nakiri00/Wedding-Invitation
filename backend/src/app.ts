@@ -32,7 +32,6 @@ app.use((request, response, next) => {
   next()
 })
 
-
 const publicWriteLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 60,
