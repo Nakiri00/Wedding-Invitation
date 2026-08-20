@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, useRef, type ReactNode } from 'react'
 import { weddingConfig } from '../data/wedding'
 import { weddingAssets } from '../assets/wedding/weddingAssets'
 import { FallingPetals } from './FallingPetals'
-
+import { GateLoadingScreen } from './GateLoadingScreen';
+import { useContainerAssetsReady } from '../hooks/useContainerAssetsReady';
 interface InvitationGateProps {
   children: ReactNode
   guestName: string
@@ -21,6 +22,17 @@ export function InvitationGate({
   onOpen,
 }: InvitationGateProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const coverRef = useRef<HTMLElement>(null);
+
+  const coverAssetsReady = useContainerAssetsReady(
+    coverRef,
+    {
+      minimumDuration: 700,
+      timeoutMs: 8000,
+    },
+  );
+
+  const gateReady = coverAssetsReady && !loading;
 
   useEffect(() => {
     if (!isOpen) {
@@ -35,10 +47,11 @@ export function InvitationGate({
   }, [isOpen])
 
   const openInvitation = () => {
-    if (loading) return
-    onOpen?.()
-    setIsOpen(true)
-  }
+    if (!gateReady) return;
+
+    onOpen?.();
+    setIsOpen(true);
+  };
 
   const groomInitial = weddingConfig.couple.groom.shortName?.[0]?.toUpperCase() ?? 'K'
   const brideInitial = weddingConfig.couple.bride.shortName?.[0]?.toUpperCase() ?? 'N'
@@ -49,6 +62,16 @@ export function InvitationGate({
 
   return (
     <>
+      {!gateReady && <GateLoadingScreen />}
+
+      <section
+        ref={coverRef}
+        className={`invitation-cover ${
+          isOpen ? 'is-open' : ''
+        } ${!gateReady ? 'is-preparing' : ''}`}
+        aria-hidden={isOpen}
+        aria-busy={!gateReady}
+      ></section>
       <section className={`invitation-cover ${isOpen ? 'is-open' : ''}`} aria-hidden={isOpen}>
         <img
           className="cover-bg"
@@ -119,8 +142,8 @@ export function InvitationGate({
             </p>
           )}
 
-          <button className="gate-primary-btn" type="button" onClick={openInvitation} disabled={loading}>
-            <span>{loading ? 'Menyiapkan Undangan…' : 'Buka Undangan'}</span>
+          <button className="gate-primary-btn" type="button" onClick={openInvitation} disabled={!gateReady}>
+            <span>{gateReady ? 'Buka Undangan' : 'Menyiapkan Undangan'}</span>
           </button>
         </div>
       </section>

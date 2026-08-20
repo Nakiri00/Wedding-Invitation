@@ -23,7 +23,7 @@ export const weddingConfig = {
   mapUrl: 'https://maps.google.com/?q=The+Garden+House+Jakarta',
   photoUrl: 'https://photos.google.com/',
   music: {
-    src: '${import.meta.env.BASE_URL}audio/wedding-music.mp3',
+     src: `${import.meta.env.BASE_URL}audio/wedding-music.mp3`,
     volume: 0.45,
   },
 }

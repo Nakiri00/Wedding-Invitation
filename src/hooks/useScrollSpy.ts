@@ -1,105 +1,110 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 
 interface UseScrollSpyOptions {
-  enabled?: boolean
-  rootMargin?: string
+  enabled?: boolean;
 }
 
 export function useScrollSpy(
   sectionIds: readonly string[],
-  { enabled = true, rootMargin = '-28% 0px -58% 0px' }: UseScrollSpyOptions = {},
+  options: UseScrollSpyOptions = {},
 ) {
-  const [activeSection, setActiveSection] = useState(sectionIds[0] ?? '')
-  const lockedSectionRef = useRef<string | null>(null)
-  const unlockTimerRef = useRef<number | null>(null)
+  const { enabled = true } = options;
+
+  const [activeSection, setActiveSection] = useState(
+    sectionIds[0] ?? '',
+  );
 
   const activateSection = useCallback((id: string) => {
-    lockedSectionRef.current = id
-    setActiveSection(id)
-
-    if (unlockTimerRef.current !== null) {
-      window.clearTimeout(unlockTimerRef.current)
-    }
-
-    // Fallback in case a browser does not deliver the expected intersection
-    // update during a very long smooth scroll.
-    unlockTimerRef.current = window.setTimeout(() => {
-      lockedSectionRef.current = null
-      unlockTimerRef.current = null
-    }, 2200)
-  }, [])
+    setActiveSection(id);
+  }, []);
 
   useEffect(() => {
-    if (!enabled || sectionIds.length === 0) return
+    if (!enabled || sectionIds.length === 0) {
+      return;
+    }
 
-    const sections = sectionIds
-      .map((id) => document.getElementById(id))
-      .filter((section): section is HTMLElement => Boolean(section))
+    let animationFrame = 0;
 
-    if (sections.length === 0) return
+    const detectActiveSection = () => {
+      const viewportAnchor = window.innerHeight * 0.35;
 
-    const visibility = new Map<string, number>()
+      let selectedSection = sectionIds[0];
+      let closestDistance = Number.POSITIVE_INFINITY;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          visibility.set(entry.target.id, entry.isIntersecting ? entry.intersectionRatio : 0)
-        })
+      for (const id of sectionIds) {
+        const element = document.getElementById(id);
 
-        const lockedId = lockedSectionRef.current
-        if (lockedId) {
-          const lockedSection = document.getElementById(lockedId)
+        if (!element) continue;
 
-          if (lockedSection) {
-            const rect = lockedSection.getBoundingClientRect()
-            const activationLine = window.innerHeight * 0.32
-            const targetReached = rect.top <= activationLine && rect.bottom >= activationLine
-
-            if (!targetReached) {
-              return
-            }
-          }
-
-          lockedSectionRef.current = null
-          if (unlockTimerRef.current !== null) {
-            window.clearTimeout(unlockTimerRef.current)
-            unlockTimerRef.current = null
-          }
+        const rect = element.getBoundingClientRect();
+        if (
+          rect.top <= viewportAnchor &&
+          rect.bottom >= viewportAnchor
+        ) {
+          selectedSection = id;
+          break;
         }
 
-        const visibleSection = sections
-          .map((section) => ({
-            id: section.id,
-            ratio: visibility.get(section.id) ?? 0,
-            distance: Math.abs(section.getBoundingClientRect().top - window.innerHeight * 0.32),
-          }))
-          .filter((section) => section.ratio > 0)
-          .sort((a, b) => {
-            if (Math.abs(b.ratio - a.ratio) > 0.08) return b.ratio - a.ratio
-            return a.distance - b.distance
-          })[0]
+        const distance = Math.abs(rect.top - viewportAnchor);
 
-        if (visibleSection) {
-          setActiveSection(visibleSection.id)
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          selectedSection = id;
         }
-      },
-      {
-        root: null,
-        rootMargin,
-        threshold: [0, 0.08, 0.2, 0.4, 0.65],
-      },
-    )
+      }
 
-    sections.forEach((section) => observer.observe(section))
+      setActiveSection(selectedSection);
+    };
+
+    const scheduleDetection = () => {
+      cancelAnimationFrame(animationFrame);
+
+      animationFrame = requestAnimationFrame(
+        detectActiveSection,
+      );
+    };
+
+    window.addEventListener('scroll', scheduleDetection, {
+      passive: true,
+    });
+
+    window.addEventListener('resize', scheduleDetection);
+
+    animationFrame = requestAnimationFrame(() => {
+      detectActiveSection();
+
+      animationFrame = requestAnimationFrame(
+        detectActiveSection,
+      );
+    });
+
+    const restoreTimer = window.setTimeout(
+      detectActiveSection,
+      300,
+    );
 
     return () => {
-      observer.disconnect()
-      if (unlockTimerRef.current !== null) {
-        window.clearTimeout(unlockTimerRef.current)
-        unlockTimerRef.current = null
-      }
-    }
-  }, [enabled, rootMargin, sectionIds])
+      cancelAnimationFrame(animationFrame);
+      window.clearTimeout(restoreTimer);
 
-  return { activeSection, activateSection }
+      window.removeEventListener(
+        'scroll',
+        scheduleDetection,
+      );
+
+      window.removeEventListener(
+        'resize',
+        scheduleDetection,
+      );
+    };
+  }, [enabled, sectionIds]);
+
+  return {
+    activeSection,
+    activateSection,
+  };
 }

@@ -88,6 +88,207 @@
   line-height: 1.45;
 }
 
+.gate-loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  padding: 28px;
+  text-align: center;
+  color: #173f34;
+
+  background:
+    radial-gradient(
+      circle at 50% 38%,
+      rgba(255, 255, 255, 0.96),
+      rgba(246, 243, 235, 0.96) 52%,
+      rgba(226, 235, 225, 0.98)
+    );
+}
+
+.gate-loading-screen__logo {
+  display: grid;
+  place-items: center;
+
+  width: 92px;
+  height: 92px;
+  margin-bottom: 24px;
+
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(25, 83, 67, 0.16);
+  border-radius: 50%;
+  box-shadow:
+    0 18px 50px rgba(25, 68, 57, 0.18),
+    inset 0 0 24px rgba(255, 255, 255, 0.9);
+}
+
+.gate-loading-screen__logo img {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+
+  animation: gate-logo-spin 2.4s
+    cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite;
+}
+
+.gate-loading-screen__kicker {
+  margin: 0 0 8px;
+
+  color: #667d71;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.gate-loading-screen h1 {
+  margin: 0;
+
+  color: #173f34;
+  font-family: var(--font-display);
+  font-size: clamp(1.65rem, 6vw, 2.6rem);
+  font-weight: 500;
+}
+
+.gate-loading-screen__message {
+  max-width: 360px;
+  margin: 12px 0 0;
+
+  color: #66776e;
+  font-size: 0.86rem;
+  line-height: 1.7;
+}
+
+.gate-loading-screen__dots {
+  display: flex;
+  gap: 7px;
+  margin-top: 22px;
+}
+
+.gate-loading-screen__dots span {
+  width: 6px;
+  height: 6px;
+
+  background: #2d6d57;
+  border-radius: 50%;
+
+  animation: gate-loading-dot 1.2s ease-in-out infinite;
+}
+
+.gate-loading-screen__dots span:nth-child(2) {
+  animation-delay: 0.16s;
+}
+
+.gate-loading-screen__dots span:nth-child(3) {
+  animation-delay: 0.32s;
+}
+
+@keyframes gate-logo-spin {
+  0% {
+    transform: rotate(0deg) scale(0.96);
+  }
+
+  50% {
+    transform: rotate(180deg) scale(1.04);
+  }
+
+  100% {
+    transform: rotate(360deg) scale(0.96);
+  }
+}
+
+@keyframes gate-loading-dot {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateY(-5px);
+  }
+}
+
+/* Section skeleton */
+
+.invitation-main .section > * {
+  transition: opacity 0.45s ease;
+}
+
+.invitation-main.assets-loading .section {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.invitation-main.assets-loading .section > * {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.invitation-main.assets-loading .section::before {
+  content: "";
+  position: absolute;
+  inset: clamp(18px, 5vw, 52px);
+  z-index: 90;
+
+  background:
+    linear-gradient(#dddcd4 0 0)
+      center 8% / 25% 13px no-repeat,
+    linear-gradient(#d4d7d0 0 0)
+      center 15% / 58% 40px no-repeat,
+    linear-gradient(#e1e0d9 0 0)
+      center 23% / 72% 12px no-repeat,
+    linear-gradient(#e1e0d9 0 0)
+      center 27% / 62% 12px no-repeat,
+    linear-gradient(#d6d9d2 0 0)
+      left 10% bottom 14% / 38% 48% no-repeat,
+    linear-gradient(#d6d9d2 0 0)
+      right 10% bottom 14% / 38% 48% no-repeat,
+    rgba(249, 247, 241, 0.94);
+
+  border: 1px solid rgba(41, 77, 65, 0.08);
+  border-radius: 22px;
+  box-shadow: 0 12px 35px rgba(38, 65, 55, 0.08);
+}
+
+.invitation-main.assets-loading .section::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 91;
+
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.75) 48%,
+    transparent 62%
+  );
+
+  transform: translateX(-100%);
+  animation: wedding-skeleton-shimmer 1.5s
+    ease-in-out infinite;
+}
+
+@keyframes wedding-skeleton-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gate-loading-screen__logo img,
+  .gate-loading-screen__dots span,
+  .invitation-main.assets-loading .section::after {
+    animation: none;
+  }
+}
 /* -------------------------------------------------------------------------- */
 /* Cover                                                                       */
 /* -------------------------------------------------------------------------- */

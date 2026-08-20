@@ -17,6 +17,7 @@ import { useInvitation } from './hooks/useInvitation'
 import { weddingApi } from './services/api'
 import { weddingConfig } from './data/wedding'
 import { useScrollSpy } from './hooks/useScrollSpy'
+import { useContainerAssetsReady } from './hooks/useContainerAssetsReady';
 import './WeddingInvitation.css'
 
 const ConsoleApp = lazy(() => import('./ConsoleApp').then((module) => ({ default: module.ConsoleApp })))
@@ -32,10 +33,52 @@ const navItems = [
 
 const navSectionIds = navItems.map(({ id }) => id)
 
+function getCurrentPath() {
+  const hashPath = window.location.hash.slice(1).trim();
+
+  // Tetap mendukung link lama #/admin.
+  if (hashPath) {
+    return hashPath.startsWith('/')
+      ? hashPath
+      : `/${hashPath}`;
+  }
+
+  const basePath = import.meta.env.BASE_URL.replace(
+    /\/$/,
+    '',
+  );
+
+  let pathname = window.location.pathname;
+
+  if (basePath && pathname.startsWith(basePath)) {
+    pathname = pathname.slice(basePath.length);
+  }
+
+  if (!pathname) return '/';
+
+  return pathname.startsWith('/')
+    ? pathname
+    : `/${pathname}`;
+}
+
 function App() {
-  const path = window.location.hash.slice(1) || '/'
-  if (path.startsWith('/admin') || path === '/admin') return <Suspense fallback={null}><ConsoleApp section="admin" /></Suspense>
-  if (path.startsWith('/staff') || path === '/admin') return <Suspense fallback={null}><ConsoleApp section="staff" /></Suspense>
+  const path = getCurrentPath();
+  if (path.startsWith('/admin')) {
+    return (
+      <Suspense fallback={null}>
+        <ConsoleApp section="admin" />
+      </Suspense>
+    );
+  }
+
+  if (path.startsWith('/staff')) {
+    return (
+      <Suspense fallback={null}>
+        <ConsoleApp section="staff" />
+      </Suspense>
+    );
+  }
+
   return <WeddingInvitationApp />
 }
 
@@ -52,6 +95,15 @@ function WeddingInvitationApp() {
     () => new URLSearchParams(window.location.search).get('invite')?.trim() ?? '',
     [],
   )
+  const sectionAssetsRef = useRef<HTMLElement>(null);
+
+  const sectionAssetsReady = useContainerAssetsReady(
+    sectionAssetsRef,
+    {
+      minimumDuration: 500,
+      timeoutMs: 10000,
+    },
+  );
 
   const { invitation, loading: invitationLoading, error: invitationError } = useInvitation(invitationToken)
   const invitationValid = Boolean(invitation && invitation.status === 'ACTIVE')
@@ -206,7 +258,7 @@ function WeddingInvitationApp() {
           })}
         </nav>
 
-        <main className="invitation-main">
+        <main ref={sectionAssetsRef} className={`invitation-main ${ sectionAssetsReady? 'assets-ready': 'assets-loading'}`}aria-busy={!sectionAssetsReady}>
           <OpeningSection />
           <QuoteSection />
           <CoupleSection />
