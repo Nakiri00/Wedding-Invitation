@@ -66,7 +66,7 @@ export function StaffPage({ session, onLogout }: Props) {
 
   return (
     <main className="console-shell">
-      <header className="console-header"><div><span className="console-kicker">LOTUS & WILLOW</span><h1>Staff Check-in</h1></div><div className="console-user"><span>{session.user.name} · {session.user.role}</span><button onClick={onLogout}>Keluar</button></div></header>
+      <header className="console-header"><div><span className="console-kicker">The Wedding of Konan & Nilo</span><h1>Staff Check-in</h1></div><div className="console-user"><span>{session.user.name} · {session.user.role}</span><button onClick={onLogout}>Keluar</button></div></header>
       <div className="staff-content">
         <section className="scanner-card">
           <span className="console-kicker">WEDDING DAY</span><h2>Check-in tamu</h2><p>Scan atau masukkan QR. Sistem akan menampilkan preview terlebih dahulu sebelum staff mengonfirmasi check-in.</p>

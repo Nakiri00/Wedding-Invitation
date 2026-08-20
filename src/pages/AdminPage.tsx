@@ -302,4 +302,4 @@ function CopyLinkButton({ token, onError }: { token: string, onError: (msg: stri
 }
 
 function Stat({ label, value }: { label: string; value: number }) { return <div className="stat-card"><span>{label}</span><strong>{value}</strong></div> }
-function ConsoleHeader({ session, onLogout, title }: { session: AuthSession; onLogout: () => void; title: string }) { return <header className="console-header"><div><span className="console-kicker">LOTUS & WILLOW</span><h1>{title}</h1></div><div className="console-user"><span>{session.user.name} · {session.user.role}</span><button onClick={onLogout}>Keluar</button></div></header> }
+function ConsoleHeader({ session, onLogout, title }: { session: AuthSession; onLogout: () => void; title: string }) { return <header className="console-header"><div><span className="console-kicker">The Wedding of Konan & Nilo</span><h1>{title}</h1></div><div className="console-user"><span>{session.user.name} · {session.user.role}</span><button onClick={onLogout}>Keluar</button></div></header> }
