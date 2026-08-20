@@ -255,18 +255,37 @@ export function AdminPage({ session, onLogout }: Props) {
   )
 }
 
-function CopyLinkButton({ token, onError }: { token: string, onError: (msg: string) => void }) {
+function CopyLinkButton({
+  token,
+  onError,
+}: {
+  token: string;
+  onError: (msg: string) => void;
+}) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
-    const url = `${window.location.origin}/?invite=${token}`;
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url)
+    const invitationUrl = new URL(
+      import.meta.env.BASE_URL,
+      window.location.origin,
+    );
+
+    invitationUrl.searchParams.set('invite', token);
+
+    const url = invitationUrl.toString();
+
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard
+        .writeText(url)
         .then(() => {
           setCopied(true);
           setTimeout(() => setCopied(false), 2500);
         })
-        .catch(() => onError('Gagal menyalin link. Pastikan browser mengizinkan akses.'));
+        .catch(() =>
+          onError(
+            'Gagal menyalin link. Pastikan browser mengizinkan akses.',
+          ),
+        );
     } else {
       onError('Fitur copy tidak didukung di perangkat ini.');
     }
