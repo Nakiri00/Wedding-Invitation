@@ -1,37 +1,35 @@
+import { Reveal } from './Reveal'
 import { weddingConfig } from '../data/wedding'
+import { weddingAssets } from '../assets/wedding/weddingAssets'
 
-interface OpeningSectionProps {
-  guestName?: string
-  onOpen: () => void
-}
-
-export function OpeningSection({ guestName, onOpen }: OpeningSectionProps) {
+export function OpeningSection() {
   return (
-    <section className="hero-section" id="home">
-      <div className="hero-orb hero-orb-one" />
-      <div className="hero-orb hero-orb-two" />
-      <div className="willow willow-left" aria-hidden="true">
-        <i /><i /><i /><i /><i /><i />
-      </div>
-      <div className="willow willow-right" aria-hidden="true">
-        <i /><i /><i /><i /><i /><i />
-      </div>
-      <div className="lotus-art" aria-hidden="true">
-        <span className="petal p1" /><span className="petal p2" /><span className="petal p3" />
-        <span className="petal p4" /><span className="petal p5" /><span className="petal p6" />
-        <span className="petal p7" /><span className="petal p8" /><span className="petal p9" />
-        <span className="lotus-center" />
-      </div>
-      <div className="hero-copy">
-        <p className="eyebrow">The Wedding of</p>
-        <h1><span>Aditya</span><em>&</em><span>Alya</span></h1>
-        <p className="hero-date">{weddingConfig.dateLabel}</p>
-        {guestName && <p className="guest-label">Dear <strong>{guestName}</strong></p>}
-        <button className="primary-button" type="button" onClick={onOpen}>
-          Buka Undangan <span>↓</span>
-        </button>
-      </div>
-      <p className="scroll-hint">Scroll to discover our story</p>
+    <section className="section invitation-hero" id="home">
+      <img className="top-canopy" src={weddingAssets.canopy.top} alt="" aria-hidden="true" />
+
+      <Reveal className="container hero-grid">
+        <div className="hero-copy editorial-copy">
+          <p className="eyebrow">A Celebration of Love</p>
+          <h1>
+            Two hearts,<br />
+            <span>one beautiful beginning.</span>
+          </h1>
+          <p className="lead">
+            Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menjadi bagian dari hari bahagia kami.
+          </p>
+          <div className="signature">
+            {weddingConfig.couple.groom.shortName} <em>&amp;</em> {weddingConfig.couple.bride.shortName}
+          </div>
+        </div>
+
+        <div className="hero-art" aria-hidden="true">
+          <div className="art-frame">
+            <img className="art-scene" src={weddingAssets.environment.background} alt="" />
+            <div className="art-scene-veil" />
+            <img className="art-swan" src={weddingAssets.animals.swan} alt="" />
+          </div>
+        </div>
+      </Reveal>
     </section>
   )
 }

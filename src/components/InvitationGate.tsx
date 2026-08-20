@@ -1,4 +1,7 @@
-import { useState, useEffect, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { weddingConfig } from '../data/wedding'
+import { weddingAssets } from '../assets/wedding/weddingAssets'
+import { FallingPetals } from './FallingPetals'
 
 interface InvitationGateProps {
   children: ReactNode
@@ -6,96 +9,123 @@ interface InvitationGateProps {
   valid: boolean
   loading?: boolean
   error?: string
+  onOpen?: () => void
 }
 
-export function InvitationGate({ children, guestName, valid, loading = false, error = '' }: InvitationGateProps) {
+export function InvitationGate({
+  children,
+  guestName,
+  valid,
+  loading = false,
+  error = '',
+  onOpen,
+}: InvitationGateProps) {
   const [isOpen, setIsOpen] = useState(false)
-  
-  const [showSuccessToast, setShowSuccessToast] = useState(false)
-  const [isClosingToast, setIsClosingToast] = useState(false)
 
   useEffect(() => {
     if (!isOpen) {
       document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = 'auto'
+      return
     }
-    
+
+    document.body.style.overflow = ''
     return () => {
-      document.body.style.overflow = 'auto'
+      document.body.style.overflow = ''
     }
   }, [isOpen])
 
-  useEffect(() => {
-    if (!loading && valid) {
-      setShowSuccessToast(true)
-      setIsClosingToast(false) 
-      
-      const startClosingTimer = setTimeout(() => {
-        setIsClosingToast(true)
-      }, 3000)
+  const openInvitation = () => {
+    if (loading) return
+    onOpen?.()
+    setIsOpen(true)
+  }
 
-      const removeToastTimer = setTimeout(() => {
-        setShowSuccessToast(false)
-      }, 3500)
+  const groomInitial = weddingConfig.couple.groom.shortName?.[0]?.toUpperCase() ?? 'K'
+  const brideInitial = weddingConfig.couple.bride.shortName?.[0]?.toUpperCase() ?? 'N'
 
-      return () => {
-        clearTimeout(startClosingTimer)
-        clearTimeout(removeToastTimer)
-      }
-    }
-  }, [loading, valid])
+  const guestLine = useMemo(() => {
+    return guestName?.trim() || 'Tamu Undangan'
+  }, [guestName])
 
   return (
     <>
-      <div className={`gate-overlay ${isOpen ? 'is-open' : ''}`}>
-        <div className="gate-content">
-          <div className="lotus-icon">🪷</div> 
-          <span className="gate-kicker">THE WEDDING OF</span>
-          <h1 className="gate-title">Lotus & Willow</h1>
-          
-          <div className="gate-guest-box">
-            <p>Kepada Yth. Bapak/Ibu/Saudara/i:</p>
-            <h2>{guestName || 'Tamu Undangan'}</h2>
-            <p>Kamu diundang untuk hadir di momen bahagia kami.</p>
+      <section className={`invitation-cover ${isOpen ? 'is-open' : ''}`} aria-hidden={isOpen}>
+        <img
+          className="cover-bg"
+          src={weddingAssets.environment.background}
+          alt=""
+          aria-hidden="true"
+        />
+        <div className="cover-veil" aria-hidden="true" />
+        <img
+          className="cover-canopy"
+          src={weddingAssets.canopy.top}
+          alt=""
+          aria-hidden="true"
+        />
+        <img
+          className="cover-corner cover-corner--left"
+          src={weddingAssets.environment.pondCornerLeft}
+          alt=""
+          aria-hidden="true"
+        />
+        <img
+          className="cover-corner cover-corner--right"
+          src={weddingAssets.environment.pondCornerRight}
+          alt=""
+          aria-hidden="true"
+        />
+
+        <FallingPetals mode="cover" />
+
+        <div className="gate-shell">
+          <div className="gate-monogram" aria-label={`${weddingConfig.couple.groom.shortName} dan ${weddingConfig.couple.bride.shortName}`}>
+            <span className="gate-monogram__letter gate-monogram__letter--groom">{groomInitial}</span>
+            <span className="gate-monogram__letter gate-monogram__letter--bride">{brideInitial}</span>
+            <span className="gate-monogram__spark" aria-hidden="true">✧</span>
           </div>
 
-          <button 
-            className="primary-button open-gate-btn" 
-            onClick={() => setIsOpen(true)}
-            disabled={loading}
-          >
-            {loading ? 'Menyiapkan Undangan...' : 'Buka Undangan'}
+          <div className="gate-heading-line" aria-hidden="true" />
+          <p className="gate-kicker">The Wedding Of</p>
+
+          <h1 className="gate-title">
+            <span>{weddingConfig.couple.groom.shortName}</span>
+            <em>&</em>
+            <span>{weddingConfig.couple.bride.shortName}</span>
+          </h1>
+
+          <p className="gate-fullnames">
+            <span>{weddingConfig.couple.groom.name}</span>
+            <span className="gate-fullnames__ampersand">&</span>
+            <span>{weddingConfig.couple.bride.name}</span>
+          </p>
+
+          <div className="gate-date" aria-label={weddingConfig.dateLabel}>
+            <span>{weddingConfig.dateParts.month}</span>
+            <strong>{weddingConfig.dateParts.day}</strong>
+            <span>{weddingConfig.dateParts.year}</span>
+          </div>
+
+          <div className="gate-copy">
+            <p className="gate-welcome">Selamat Datang</p>
+            <p className="gate-guest">
+              Di hari istimewa kami, <strong>{guestLine}</strong> adalah bagian dari kebahagiaan yang kami nantikan.
+            </p>
+          </div>
+
+          {!loading && !valid && (
+            <p className="gate-status" role="status">
+              {error || 'Mode preview — RSVP aktif melalui link undangan personal.'}
+            </p>
+          )}
+
+          <button className="gate-primary-btn" type="button" onClick={openInvitation} disabled={loading}>
+            <span>{loading ? 'Menyiapkan Undangan…' : 'Buka Undangan'}</span>
           </button>
         </div>
-      </div>
+      </section>
 
-      <div className="app-shell" data-invitation-valid={valid}>
-        
-        <div className="toast-container">
-          {loading && (
-            <div className="toast" role="status">
-              <span>Memuat undangan</span>
-              <strong>Menyiapkan undangan personal…</strong>
-            </div>
-          )}
-          
-          {!loading && !valid && (
-            <div className="toast toast-error" role="status">
-              <span>{error ? 'Invitation unavailable' : 'Preview mode'}</span>
-              <strong>{error || 'Link undangan personal belum terdeteksi.'}</strong>
-              <small>Gunakan <code>?invite=8fK2xP9m</code> setelah API dan database aktif.</small>
-            </div>
-          )}
-          
-          {!loading && valid && showSuccessToast && (
-            <div className={`toast toast-success ${isClosingToast ? 'toast-closing' : ''}`}>
-              <span>Berhasil</span>
-              <strong>Undangan untuk {guestName}</strong>
-            </div>
-          )}
-        </div>
-
+      <div className="app-shell" data-invitation-valid={valid} aria-hidden={!isOpen}>
         {children}
       </div>
     </>

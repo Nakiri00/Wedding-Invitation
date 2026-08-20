@@ -1,29 +1,48 @@
 import { Reveal } from './Reveal'
 import { weddingConfig } from '../data/wedding'
+import { weddingAssets } from '../assets/wedding/weddingAssets'
 
 export function CoupleSection() {
   const { bride, groom } = weddingConfig.couple
+
   return (
-    <section className="section story-section" id="story">
-      <Reveal className="section-heading">
-        <span className="section-kicker">A little story</span>
-        <h2>Two paths,<br /><i>one beautiful</i> journey.</h2>
-        <p>Dengan penuh rasa syukur, kami mengundang Anda untuk menjadi bagian dari awal perjalanan baru kami.</p>
-      </Reveal>
-      <div className="couple-grid">
-        <Reveal className="person-card">
-          <div className="portrait portrait-groom"><span>AP</span></div>
-          <p className="person-role">The Groom</p>
-          <h3>{groom.name}</h3>
-          <p>{groom.parents}</p>
+    <section className="section couple-section" id="couple">
+      <img className="couple-canopy" src={weddingAssets.canopy.top} alt="" aria-hidden="true" />
+
+      <div className="container">
+        <Reveal className="section-heading centered-heading">
+          <p className="eyebrow">The Bride &amp; Groom</p>
+          <h2>Meet the happy couple</h2>
+          <p>Dengan memohon rahmat dan ridho Tuhan Yang Maha Esa, kami bermaksud menyelenggarakan pernikahan kami.</p>
         </Reveal>
-        <div className="ampersand" aria-hidden="true">&</div>
-        <Reveal className="person-card person-card-right">
-          <div className="portrait portrait-bride"><span>AM</span></div>
-          <p className="person-role">The Bride</p>
-          <h3>{bride.name}</h3>
-          <p>{bride.parents}</p>
-        </Reveal>
+
+        <div className="couple-grid editorial-couple-grid">
+          <Reveal className="person-card editorial-person-card">
+            <span className="person-index">01</span>
+            <div className="person-botanical" aria-hidden="true">
+              <img src={weddingAssets.lotus.medium} alt="" />
+            </div>
+            <p className="eyebrow">The Groom</p>
+            <h3>{groom.name}</h3>
+            <p>{groom.parents || 'Putra tercinta dari keluarga yang kami hormati.'}</p>
+          </Reveal>
+
+          <div className="couple-monogram" aria-hidden="true">
+            <span>{groom.shortName.slice(0, 1)}</span>
+            <i>&amp;</i>
+            <span>{bride.shortName.slice(0, 1)}</span>
+          </div>
+
+          <Reveal className="person-card editorial-person-card editorial-person-card--right">
+            <span className="person-index">02</span>
+            <div className="person-botanical person-botanical--right" aria-hidden="true">
+              <img src={weddingAssets.lotus.small} alt="" />
+            </div>
+            <p className="eyebrow">The Bride</p>
+            <h3>{bride.name}</h3>
+            <p>{bride.parents || 'Putri tercinta dari keluarga yang kami hormati.'}</p>
+          </Reveal>
+        </div>
       </div>
     </section>
   )

@@ -1,3 +1,4 @@
+import './App.css'
 import { useEffect, useState } from 'react'
 import { AuthPage } from './pages/AuthPage'
 import { AdminPage } from './pages/AdminPage'

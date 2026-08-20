@@ -1,23 +1,47 @@
 import { Reveal } from './Reveal'
 import { weddingConfig } from '../data/wedding'
+import { weddingAssets } from '../assets/wedding/weddingAssets'
 
-const frames = ['portrait-one', 'portrait-two', 'portrait-three', 'portrait-four', 'portrait-five']
+const frames = [
+  { className: 'gallery-frame--tall', position: '24% 52%' },
+  { className: 'gallery-frame--small', position: '52% 48%' },
+  { className: 'gallery-frame--small', position: '76% 48%' },
+  { className: 'gallery-frame--wide', position: '58% 64%' },
+]
 
 export function GallerySection() {
   return (
     <section className="section gallery-section" id="gallery">
-      <Reveal className="section-heading centered">
-        <span className="section-kicker">Little moments</span>
-        <h2>Share the <i>joy</i></h2>
-        <p>Setelah acara, mari abadikan momen bersama melalui album foto.</p>
-      </Reveal>
-      <Reveal className="gallery-grid">
-        {frames.map((frame, index) => <div className={`gallery-frame ${frame}`} key={frame}><span>{String(index + 1).padStart(2, '0')}</span></div>)}
-      </Reveal>
-      <Reveal className="gallery-cta">
-        <div><span className="section-kicker">Wedding album</span><h3>Upload foto favoritmu</h3><p>Album bersama dapat diarahkan ke platform photo-sharing pilihan client.</p></div>
-        <a className="primary-button" href={weddingConfig.photoUrl} target="_blank" rel="noreferrer">Buka Album ↗</a>
-      </Reveal>
+      <div className="container">
+        <Reveal className="section-heading centered-heading">
+          <p className="eyebrow">Little Moments</p>
+          <h2>Share the joy</h2>
+          <p>Setelah acara, mari abadikan momen bersama melalui album foto pernikahan.</p>
+        </Reveal>
+
+        <Reveal className="editorial-gallery-grid">
+          {frames.map((frame, index) => (
+            <div
+              className={`gallery-frame ${frame.className}`}
+              key={`${frame.className}-${index}`}
+              style={{ backgroundImage: `url(${weddingAssets.environment.background})`, backgroundPosition: frame.position }}
+            >
+              <span>{String(index + 1).padStart(2, '0')}</span>
+            </div>
+          ))}
+        </Reveal>
+
+        <Reveal className="gallery-cta editorial-gallery-cta">
+          <div>
+            <p className="eyebrow">Wedding Album</p>
+            <h3>Upload foto favoritmu</h3>
+            <p>Bagikan foto dan momen terbaik yang kamu abadikan di hari pernikahan kami.</p>
+          </div>
+          <a className="cover-primary-btn gallery-button" href={weddingConfig.photoUrl} target="_blank" rel="noreferrer">
+            <span>Buka Album</span><span aria-hidden="true">↗</span>
+          </a>
+        </Reveal>
+      </div>
     </section>
   )
 }

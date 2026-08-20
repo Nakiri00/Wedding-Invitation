@@ -1,0 +1,250 @@
+.botanical-hero {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.botanical-hero img {
+  position: absolute;
+  display: block;
+  user-select: none;
+}
+
+.botanical-willow {
+  top: -2rem;
+  width: min(34vw, 430px);
+  height: auto;
+  opacity: 0;
+  animation: botanical-willow-enter 1.8s cubic-bezier(.22, 1, .36, 1) .2s forwards;
+}
+
+.botanical-willow-left {
+  left: -3rem;
+  transform-origin: top left;
+}
+
+.botanical-willow-right {
+  right: -3rem;
+  transform-origin: top right;
+  animation-delay: .35s;
+}
+
+.botanical-lotus {
+  opacity: 0;
+  transform-origin: center;
+}
+
+.botanical-lotus-large {
+  left: 50%;
+  bottom: 5%;
+  width: min(31vw, 390px);
+  transform: translateX(-50%) translateY(35px) scale(.88);
+  animation: botanical-lotus-enter 1.5s cubic-bezier(.22, 1, .36, 1) .65s forwards;
+}
+
+.botanical-lotus-small {
+  left: 19%;
+  bottom: 9%;
+  width: min(14vw, 180px);
+  transform: translateY(25px) scale(.85);
+  animation: botanical-lotus-enter 1.3s cubic-bezier(.22, 1, .36, 1) .95s forwards;
+}
+
+.botanical-leaf {
+  opacity: 0;
+}
+
+.botanical-leaf-left {
+  left: -2rem;
+  bottom: -1rem;
+  width: min(28vw, 340px);
+  transform: rotate(-8deg) translateY(35px);
+  animation: botanical-leaf-enter 1.4s ease-out 1s forwards;
+}
+
+.botanical-leaf-right {
+  right: -2rem;
+  bottom: -1rem;
+  width: min(25vw, 300px);
+  transform: rotate(8deg) translateY(35px);
+  animation: botanical-leaf-enter 1.4s ease-out 1.15s forwards;
+}
+
+.botanical-petal {
+  width: clamp(25px, 4vw, 60px);
+  opacity: 0;
+}
+
+.botanical-petal-one {
+  left: 25%;
+  top: 34%;
+  animation: botanical-petal-enter 1.2s ease-out .9s forwards;
+}
+
+.botanical-petal-two {
+  right: 25%;
+  top: 45%;
+  animation: botanical-petal-enter 1.2s ease-out 1.1s forwards;
+}
+
+.botanical-petal-three {
+  left: 15%;
+  bottom: 30%;
+  animation: botanical-petal-enter 1.2s ease-out 1.25s forwards;
+}
+
+
+.botanical-drop {
+  opacity: 0;
+}
+
+.botanical-drop-one {
+  left: 14%;
+  top: 22%;
+  width: clamp(25px, 4vw, 55px);
+  animation: botanical-drop-fall 1.3s cubic-bezier(.22, 1, .36, 1) .3s forwards;
+}
+
+.botanical-drop-two {
+  right: 16%;
+  top: 27%;
+  width: clamp(30px, 5vw, 65px);
+  animation: botanical-drop-fall 1.5s cubic-bezier(.22, 1, .36, 1) .55s forwards;
+}
+
+.botanical-ripple {
+  left: 50%;
+  bottom: 1%;
+  width: min(28vw, 360px);
+  transform: translateX(-50%) scale(.8);
+  opacity: 0;
+  animation: botanical-ripple-enter 1.4s ease-out 1.2s forwards;
+}
+
+@keyframes botanical-willow-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(.96);
+  }
+
+  to {
+    opacity: .92;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes botanical-lotus-enter {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(35px) scale(.88);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+@keyframes botanical-leaf-enter {
+  from {
+    opacity: 0;
+    transform: translateY(35px);
+  }
+
+  to {
+    opacity: .95;
+    transform: translateY(0);
+  }
+}
+
+@keyframes botanical-petal-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) rotate(-15deg);
+  }
+
+  to {
+    opacity: .8;
+    transform: translateY(0) rotate(0);
+  }
+}
+
+@keyframes botanical-drop-fall {
+  from {
+    opacity: 0;
+    transform: translateY(-70px) scale(.8);
+  }
+
+  to {
+    opacity: .75;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes botanical-ripple-enter {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(.8);
+  }
+
+  to {
+    opacity: .75;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .botanical-hero img {
+    animation: none !important;
+    opacity: 1;
+    transform: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .botanical-willow {
+    width: 48vw;
+    top: 0;
+  }
+
+  .botanical-willow-left {
+    left: -4rem;
+  }
+
+  .botanical-willow-right {
+    right: -4rem;
+  }
+
+  .botanical-lotus-large {
+    width: 52vw;
+    bottom: 8%;
+  }
+
+  .botanical-lotus-small {
+    width: 23vw;
+    left: 5%;
+    bottom: 13%;
+  }
+
+  .botanical-leaf-left {
+    width: 42vw;
+  }
+
+  .botanical-leaf-right {
+    width: 38vw;
+  }
+
+  .botanical-ripple {
+    width: 48vw;
+  }
+
+  .botanical-petal-one {
+    left: 12%;
+  }
+
+  .botanical-petal-two {
+    right: 12%;
+  }
+}

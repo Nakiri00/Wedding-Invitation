@@ -4,7 +4,6 @@ import { initialMessages } from '../data/wedding'
 import { weddingApi } from '../services/api'
 import { Reveal } from './Reveal'
 import { Pagination } from './Pagination'
-import { SearchBar } from './SearchBar' // Pastikan SearchBar di-import
 import type { MessageItem } from '../types/wedding'
 
 interface MessageSectionProps {
@@ -20,37 +19,23 @@ export function MessageSection({ token, guestName, initialMessages: serverMessag
   const [name, setName] = useState('')
   const [status, setStatus] = useState('')
   const [page, setPage] = useState(1)
-  const [searchQuery, setSearchQuery] = useState('') 
 
   const messages = serverMessages ?? initialMessages
-
   const publishedMessages = useMemo(() => messages.filter((item) => item.status === 'published'), [messages])
-
-  const filteredMessages = useMemo(() => {
-    if (!searchQuery.trim()) return publishedMessages
-    const lower = searchQuery.toLowerCase()
-    return publishedMessages.filter(item => 
-      item.name.toLowerCase().includes(lower) || 
-      item.message.toLowerCase().includes(lower)
-    )
-  }, [publishedMessages, searchQuery])
-
   const pageSize = 3
-  const totalPages = Math.max(1, Math.ceil(filteredMessages.length / pageSize))
-  
+  const totalPages = Math.max(1, Math.ceil(publishedMessages.length / pageSize))
   const visibleMessages = useMemo(
-    () => filteredMessages.slice((page - 1) * pageSize, page * pageSize),
-    [filteredMessages, page, pageSize],
+    () => publishedMessages.slice((page - 1) * pageSize, page * pageSize),
+    [publishedMessages, page],
   )
 
   useEffect(() => {
-    if (totalPages <= 1) return;
-
-    const interval = setInterval(() => {
-      setPage(prev => (prev >= totalPages ? 1 : prev + 1));
-    }, 5000); 
-    return () => clearInterval(interval);
-  }, [totalPages]);
+    if (totalPages <= 1) return
+    const interval = window.setInterval(() => {
+      setPage((current) => (current >= totalPages ? 1 : current + 1))
+    }, 6000)
+    return () => window.clearInterval(interval)
+  }, [totalPages])
 
   const submit = async (event: FormEvent) => {
     event.preventDefault()
@@ -69,60 +54,66 @@ export function MessageSection({ token, guestName, initialMessages: serverMessag
   }
 
   return (
-    <section className="section message-section" id="messages">
-      {/* CSS Keyframes untuk animasi transisi */}
-      <style>{`
-        @keyframes fadeSlideIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-message-list {
-          animation: fadeSlideIn 0.5s ease-out forwards;
-        }
-      `}</style>
+    <section className="section wishes-section" id="messages">
+      <div className="container">
+        <Reveal className="section-heading centered-heading">
+          <p className="eyebrow">Words from the Heart</p>
+          <h2>Pesan untuk hari bahagia</h2>
+          <p>Tinggalkan doa dan ucapan terbaik untuk kedua mempelai.</p>
+        </Reveal>
 
-      <Reveal className="section-heading centered">
-        <span className="section-kicker">Words from the heart</span>
-        <h2>Pesan & <i>kesan</i></h2>
-        <p>Tinggalkan doa dan ucapan terbaik untuk kedua mempelai.</p>
-      </Reveal>
-      
-      <div className="message-layout">
-        <Reveal className="message-form">
-          <form onSubmit={submit}>
-            <label>Nama<input value={name} onChange={(e) => setName(e.target.value)} placeholder={guestName || "Nama Anda"} disabled={!enabled} /></label>
-            <label>Pesan<textarea value={message} onChange={(e) => setMessage(e.target.value)} maxLength={240} rows={5} placeholder="Tulis ucapan terbaik..." disabled={!enabled} /></label>
-            <div className="form-footer"><small>{message.length}/240</small><button className="secondary-button" type="submit" disabled={!enabled}>Kirim pesan</button></div>
-            {status && <small className="moderation-note" role="status">{status}</small>}
-            {!enabled && <small className="moderation-note">Pesan dapat dikirim setelah link undangan personal tervalidasi.</small>}
+        <Reveal className="wish-form-shell">
+          <div className="wish-form-copy">
+            <p className="eyebrow">Send Your Wishes</p>
+            <h3>Leave a little note for us.</h3>
+            <p>Ucapan akan tampil setelah melalui moderasi.</p>
+          </div>
+          <form className="wish-form" onSubmit={submit}>
+            <label>
+              Nama
+              <input value={name} onChange={(e) => setName(e.target.value)} placeholder={guestName || 'Nama Anda'} disabled={!enabled} />
+            </label>
+            <label>
+              Pesan
+              <textarea value={message} onChange={(e) => setMessage(e.target.value)} maxLength={240} rows={4} placeholder="Tulis ucapan terbaik..." disabled={!enabled} />
+            </label>
+            <div className="wish-form-footer">
+              <small>{message.length}/240</small>
+              <button className="outline-btn" type="submit" disabled={!enabled}>Kirim Pesan</button>
+            </div>
+            {status && <small className="form-status" role="status">{status}</small>}
+            {!enabled && <small className="form-status">Pesan aktif setelah link undangan personal tervalidasi.</small>}
           </form>
         </Reveal>
 
-        <Reveal className="message-list-container" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%' }}>
-          {/* <SearchBar 
-            placeholder="Cari ucapan atau nama tamu..." 
-            value={searchQuery} 
-            onChange={(val) => { setSearchQuery(val); setPage(1); }} 
-            style={{ width: '50%'}} 
-          /> */}
-
-          <div key={`guest-msg-page-${page}`} className="message-list animate-message-list" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {visibleMessages.length > 0 ? visibleMessages.map((item) => (
-              <article className="message-item" key={item.id}>
-                <span className="message-quote">“</span>
+        <Reveal className="wishes-grid">
+          {visibleMessages.length > 0 ? visibleMessages.map((item) => (
+            <article className="wish-card" key={item.id}>
+              <div className="wish-avatar" aria-hidden="true">{item.name.trim().slice(0, 1).toUpperCase() || '♡'}</div>
+              <div>
+                <h3>{item.name}</h3>
                 <p>{item.message}</p>
-                <strong>{item.name}</strong><small>{new Date(item.createdAt).toLocaleDateString('id-ID')}</small>
-              </article>
-            )) : (
-              <p style={{ textAlign: 'center', fontStyle: 'italic', color: '#666', padding: '2rem 0' }}>Tidak ada pesan ditemukan.</p>
-            )}
-            
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 'auto', paddingTop: '1rem' }}>
-              <Pagination page={page} totalItems={filteredMessages.length} itemsPerPage={pageSize} onPageChange={setPage} label="pesan" />
-            </div>
-          </div>
+                <small>{formatDate(item.createdAt)}</small>
+              </div>
+            </article>
+          )) : (
+            <div className="empty-wishes">Belum ada pesan yang dipublikasikan.</div>
+          )}
         </Reveal>
+
+        {publishedMessages.length > pageSize && (
+          <div className="wishes-pagination">
+            <Pagination page={page} totalItems={publishedMessages.length} itemsPerPage={pageSize} onPageChange={setPage} label="pesan" />
+          </div>
+        )}
+
       </div>
     </section>
   )
+}
+
+function formatDate(value: string) {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
 }
