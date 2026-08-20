@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
-import { initialMessages } from '../data/wedding'
+// import { initialMessages } from '../data/wedding'
 import { weddingApi } from '../services/api'
 import { Reveal } from './Reveal'
 import { Pagination } from './Pagination'
@@ -20,7 +20,7 @@ export function MessageSection({ token, guestName, initialMessages: serverMessag
   const [status, setStatus] = useState('')
   const [page, setPage] = useState(1)
 
-  const messages = serverMessages ?? initialMessages
+  const messages = serverMessages ?? []
   const publishedMessages = useMemo(() => messages.filter((item) => item.status === 'published'), [messages])
   const pageSize = 3
   const totalPages = Math.max(1, Math.ceil(publishedMessages.length / pageSize))

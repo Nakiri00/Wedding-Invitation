@@ -29,18 +29,18 @@ export const weddingConfig = {
 }
 
 export const initialMessages: MessageItem[] = [
-  {
-    id: "1",
-    name: 'Nadia & Fajar',
-    message: 'Semoga menjadi keluarga yang selalu dipenuhi cinta, ketenangan, dan kebahagiaan.',
-    createdAt: '2 hari lalu',
-    status: 'published',
-  },
-  {
-    id: "2",
-    name: 'Rizky',
-    message: 'Selamat menempuh hidup baru! Sampai bertemu di hari bahagia.',
-    createdAt: '3 hari lalu',
-    status: 'published',
-  },
+  // {
+  //   id: "1",
+  //   name: 'Nadia & Fajar',
+  //   message: 'Semoga menjadi keluarga yang selalu dipenuhi cinta, ketenangan, dan kebahagiaan.',
+  //   createdAt: '2 hari lalu',
+  //   status: 'published',
+  // },
+  // {
+  //   id: "2",
+  //   name: 'Rizky',
+  //   message: 'Selamat menempuh hidup baru! Sampai bertemu di hari bahagia.',
+  //   createdAt: '3 hari lalu',
+  //   status: 'published',
+  // },
 ]
