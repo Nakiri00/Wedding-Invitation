@@ -45,12 +45,20 @@ export async function getInvitation(token: string) {
     ? await QRCode.toDataURL(`wedding:checkin:${invitation.rsvp.qrToken}`, { margin: 1, width: 280 })
     : null
 
+  const { messages, ...invitationData } = invitation
+
   return {
-    ...invitation,
+    ...invitationData,
+
+    hasMessage: messages.length > 0,
+
     rsvp: invitation.rsvp
       ? {
           name: invitation.rsvp.name,
-          attendance: invitation.rsvp.attendance === 'ATTENDING' ? 'attending' : 'not_attending',
+          attendance:
+            invitation.rsvp.attendance === 'ATTENDING'
+              ? 'attending'
+              : 'not_attending',
           guestCount: invitation.rsvp.guestCount,
           babyCount: invitation.rsvp.babyCount,
           submittedAt: invitation.rsvp.submittedAt,
