@@ -5,10 +5,10 @@
 
 */
 -- DropForeignKey
-ALTER TABLE `message` DROP FOREIGN KEY `Message_invitationId_fkey`;
+ALTER TABLE `Message` DROP FOREIGN KEY `Message_invitationId_fkey`;
 
 -- AlterTable
-ALTER TABLE `message` MODIFY `status` ENUM('PENDING', 'PUBLISHED', 'HIDDEN') NOT NULL DEFAULT 'PUBLISHED';
+ALTER TABLE `Message` MODIFY `status` ENUM('PENDING', 'PUBLISHED', 'HIDDEN') NOT NULL DEFAULT 'PUBLISHED';
 
 -- CreateIndex
 CREATE UNIQUE INDEX `Message_invitationId_key` ON `Message`(`invitationId`);
