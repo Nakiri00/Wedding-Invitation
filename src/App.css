@@ -804,13 +804,54 @@ legend { margin-bottom:10px; }
   line-height:1.65;
 }
 
+
+body.qr-confirmation-open {
+  overflow: hidden !important;
+}
+
+.qr-confirmation-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147483647 !important;
+
+  display: grid !important;
+  place-items: center !important;
+
+  width: 100%;
+  height: 100dvh;
+  padding:
+    max(1rem, env(safe-area-inset-top))
+    max(1rem, env(safe-area-inset-right))
+    max(1rem, env(safe-area-inset-bottom))
+    max(1rem, env(safe-area-inset-left));
+
+  box-sizing: border-box;
+  overflow: hidden;
+  isolation: isolate;
+  overscroll-behavior: contain;
+
+  background: rgba(12, 31, 24, 0.74);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  animation: qr-backdrop-pop-in 220ms ease-out both;
+}
+
 .qr-confirmation-dialog {
+  position: relative;
   width: min(100%, 29rem);
   max-height: calc(100dvh - 2rem);
-  overflow-y: auto;
+  margin: 0 !important;
   padding: clamp(1.5rem, 5vw, 2.25rem);
+
+  box-sizing: border-box;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+
   border: 1px solid rgba(39, 91, 68, 0.16);
   border-radius: 1.75rem;
+
   background:
     radial-gradient(
       circle at top,
@@ -818,11 +859,29 @@ legend { margin-bottom:10px; }
       transparent 34%
     ),
     #fffdf8;
+
   box-shadow:
     0 2rem 5rem rgba(7, 31, 21, 0.35),
     inset 0 1px rgba(255, 255, 255, 0.8);
+
   color: #173e31;
   text-align: center;
+  transform-origin: center;
+
+  animation:
+    qr-dialog-pop-in 260ms
+    cubic-bezier(0.22, 1, 0.36, 1)
+    both;
+}
+
+.qr-confirmation-backdrop.is-closing {
+  pointer-events: none;
+  animation: qr-backdrop-pop-out 180ms ease-in both;
+}
+
+.qr-confirmation-backdrop.is-closing
+  .qr-confirmation-dialog {
+  animation: qr-dialog-pop-out 180ms ease-in both;
 }
 
 .qr-confirmation-header {
@@ -835,8 +894,10 @@ legend { margin-bottom:10px; }
   width: 3.75rem;
   height: 3.75rem;
   margin: 0 auto 1rem;
+
   border: 1px solid currentColor;
   border-radius: 50%;
+
   font-family: Georgia, serif;
   font-size: 1.5rem;
 }
@@ -844,13 +905,15 @@ legend { margin-bottom:10px; }
 .qr-confirmation-icon--ready {
   background: #e5f1e9;
   color: #28684d;
-  box-shadow: 0 0 0 0.5rem rgba(229, 241, 233, 0.6);
+  box-shadow:
+    0 0 0 0.5rem rgba(229, 241, 233, 0.6);
 }
 
 .qr-confirmation-icon--warning {
   background: #f9e9df;
   color: #a14f32;
-  box-shadow: 0 0 0 0.5rem rgba(249, 233, 223, 0.6);
+  box-shadow:
+    0 0 0 0.5rem rgba(249, 233, 223, 0.6);
 }
 
 .qr-confirmation-kicker {
@@ -888,8 +951,10 @@ legend { margin-bottom:10px; }
 
 .qr-confirmation-detail {
   padding: 1rem;
+
   border: 1px solid rgba(39, 91, 68, 0.12);
   border-radius: 1rem;
+
   background: rgba(244, 242, 235, 0.72);
   text-align: left;
 }
@@ -912,6 +977,7 @@ legend { margin-bottom:10px; }
   align-items: baseline;
   gap: 0.35rem;
   margin: 0;
+
   color: #173e31;
   font-size: 1rem;
   font-weight: 600;
@@ -948,27 +1014,33 @@ legend { margin-bottom:10px; }
   color: #8f3030;
 }
 
+/* Tombol */
 .qr-confirmation-actions {
   display: flex;
   gap: 0.75rem;
   margin-top: 1.5rem;
 }
 
-.qr-confirmation-dialog .qr-confirmation-button {
+.qr-confirmation-dialog
+  .qr-confirmation-button {
   appearance: none;
   display: inline-flex;
   flex: 1;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+
   min-height: 3.25rem;
   padding: 0.75rem 1rem;
+
   border-radius: 999px;
   font: inherit;
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.06em;
+
   cursor: pointer;
+
   transition:
     transform 160ms ease,
     background-color 160ms ease,
@@ -986,18 +1058,22 @@ legend { margin-bottom:10px; }
   border: 1px solid #215e45;
   background: #215e45;
   color: #fff;
-  box-shadow: 0 0.75rem 1.5rem rgba(33, 94, 69, 0.22);
+
+  box-shadow:
+    0 0.75rem 1.5rem rgba(33, 94, 69, 0.22);
 }
 
-.qr-confirmation-button--primary:hover {
-  background: #184c37;
-  border-color: #184c37;
-  transform: translateY(-1px);
-}
+@media (hover: hover) {
+  .qr-confirmation-button--primary:hover {
+    border-color: #184c37;
+    background: #184c37;
+    transform: translateY(-1px);
+  }
 
-.qr-confirmation-button--secondary:hover {
-  background: #edf4ef;
-  border-color: #275c46;
+  .qr-confirmation-button--secondary:hover {
+    border-color: #275c46;
+    background: #edf4ef;
+  }
 }
 
 .qr-confirmation-button:active {
@@ -1015,8 +1091,66 @@ legend { margin-bottom:10px; }
   transform: none;
 }
 
+@keyframes qr-backdrop-pop-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes qr-backdrop-pop-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes qr-dialog-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.88);
+  }
+
+  65% {
+    opacity: 1;
+    transform: scale(1.025);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes qr-dialog-pop-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+}
+
 @media (max-width: 480px) {
+  .qr-confirmation-backdrop {
+    display: grid !important;
+    place-items: center !important;
+    align-items: center !important;
+    padding: 0.75rem !important;
+  }
+
   .qr-confirmation-dialog {
+    width: 100%;
+    max-height: calc(100dvh - 1.5rem);
     padding: 1.5rem 1.1rem 1.25rem;
     border-radius: 1.6rem;
   }
@@ -1029,9 +1163,48 @@ legend { margin-bottom:10px; }
     flex-direction: column-reverse;
   }
 
-  .qr-confirmation-dialog .qr-confirmation-button {
+  .qr-confirmation-dialog
+    .qr-confirmation-button {
     width: 100%;
     flex: none;
+  }
+}
+
+@media (max-height: 700px) {
+  .qr-confirmation-dialog {
+    padding-block: 1.1rem;
+  }
+
+  .qr-confirmation-header {
+    margin-bottom: 1rem;
+  }
+
+  .qr-confirmation-icon {
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .qr-confirmation-kicker {
+    margin-top: 0.9rem;
+  }
+
+  .qr-confirmation-detail {
+    padding: 0.75rem;
+  }
+
+  .qr-confirmation-actions {
+    margin-top: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .qr-confirmation-backdrop,
+  .qr-confirmation-dialog,
+  .qr-confirmation-backdrop.is-closing,
+  .qr-confirmation-backdrop.is-closing
+    .qr-confirmation-dialog {
+    animation-duration: 1ms !important;
   }
 }
 
