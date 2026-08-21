@@ -26,6 +26,32 @@ export const weddingConfig = {
      src: `${import.meta.env.BASE_URL}audio/wedding-music.mp3`,
     volume: 0.45,
   },
+  gallery: [
+  {
+    src: `${import.meta.env.BASE_URL}images/gallery/couple-01.webp`,
+    alt: 'Konan dan Nilo dalam sesi prewedding',
+  },
+  {
+    src: `${import.meta.env.BASE_URL}images/gallery/couple-02.webp`,
+    alt: 'Potret kebersamaan Konan dan Nilo',
+  },
+  {
+    src: `${import.meta.env.BASE_URL}images/gallery/couple-03.webp`,
+    alt: 'Momen bahagia Konan dan Nilo',
+  },
+  {
+    src: `${import.meta.env.BASE_URL}images/gallery/couple-04.webp`,
+    alt: 'Foto prewedding Konan dan Nilo',
+  },
+  {
+    src: `${import.meta.env.BASE_URL}images/gallery/couple-05.webp`,
+    alt: 'Kisah cinta Konan dan Nilo',
+  },
+  {
+    src: `${import.meta.env.BASE_URL}images/gallery/couple-06.webp`,
+    alt: 'Perjalanan menuju hari bahagia',
+  },
+  ],
 }
 
 export const initialMessages: MessageItem[] = [
