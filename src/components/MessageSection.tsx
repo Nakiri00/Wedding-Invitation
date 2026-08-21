@@ -134,8 +134,7 @@ export function MessageSection({ token, guestName, initialMessages: serverMessag
               <h3>Terima kasih atas pesan indahnya</h3>
 
               <p>
-                Pesan dari <strong>{name.trim() || guestName}</strong> telah
-                tersampaikan. Doa dan ucapanmu sangat berarti bagi kami.
+                Pesan telah tersampaikan. Doa dan ucapanmu sangat berarti bagi kami.
               </p>
             </div>
           ) : (

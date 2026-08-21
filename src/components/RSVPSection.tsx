@@ -91,9 +91,7 @@ export function RSVPSection({ token, validToken, quota, existingRSVP, guestName,
             <h3>Terima kasih telah datang</h3>
 
             <p>
-              Kehadiran{' '}
-              <strong>{existingRSVP.name}</strong>{' '}
-              telah tercatat. Selamat menikmati rangkaian
+              Kehadiran telah tercatat. Selamat menikmati rangkaian
               acara dan menjadi bagian dari hari bahagia
               kami.
             </p>
@@ -134,7 +132,7 @@ export function RSVPSection({ token, validToken, quota, existingRSVP, guestName,
 
             <p>
               {existingRSVP.attendance === 'attending'
-                ? `Kami menantikan kehadiran Anda dengan ${existingRSVP.guests} kursi.`
+                ? `Kami menantikan kehadiran Anda`
                 : 'Terima kasih atas konfirmasinya. Doa baik Anda sangat berarti bagi kami.'}
             </p>
 
