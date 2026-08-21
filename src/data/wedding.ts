@@ -28,27 +28,27 @@ export const weddingConfig = {
   },
   gallery: [
   {
-    src: `${import.meta.env.BASE_URL}images/gallery/couple-01.webp`,
+    src: `${import.meta.env.BASE_URL}images/gallery/template1.png`,
     alt: 'Konan dan Nilo dalam sesi prewedding',
   },
   {
-    src: `${import.meta.env.BASE_URL}images/gallery/couple-02.webp`,
+    src: `${import.meta.env.BASE_URL}images/gallery/template2.png`,
     alt: 'Potret kebersamaan Konan dan Nilo',
   },
   {
-    src: `${import.meta.env.BASE_URL}images/gallery/couple-03.webp`,
+    src: `${import.meta.env.BASE_URL}images/gallery/template3.png`,
     alt: 'Momen bahagia Konan dan Nilo',
   },
   {
-    src: `${import.meta.env.BASE_URL}images/gallery/couple-04.webp`,
+    src: `${import.meta.env.BASE_URL}images/gallery/template4.png`,
     alt: 'Foto prewedding Konan dan Nilo',
   },
   {
-    src: `${import.meta.env.BASE_URL}images/gallery/couple-05.webp`,
+    src: `${import.meta.env.BASE_URL}images/gallery/template5.png`,
     alt: 'Kisah cinta Konan dan Nilo',
   },
   {
-    src: `${import.meta.env.BASE_URL}images/gallery/couple-06.webp`,
+    src: `${import.meta.env.BASE_URL}images/gallery/template6.png`,
     alt: 'Perjalanan menuju hari bahagia',
   },
   ],
