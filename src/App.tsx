@@ -26,6 +26,7 @@ const navItems = [
   { id: 'home', symbol: '⌂', label: 'Home' },
   { id: 'couple', symbol: '♡', label: 'Mempelai' },
   { id: 'event', symbol: '◷', label: 'Acara' },
+  { id: 'story', symbol: '✦', label: 'Kisah' },
   { id: 'rsvp', symbol: '✉', label: 'RSVP' },
   { id: 'messages', symbol: '“', label: 'Pesan' },
   { id: 'gallery', symbol: '▦', label: 'Galeri' },
