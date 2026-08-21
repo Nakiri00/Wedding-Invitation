@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { Prisma } from '@prisma/client'
-import { createMessage, getInvitation, listPublishedMessages, submitRSVP } from './invitation.service.js'
+import { createMessage, getCheckInStatus, getInvitation, listPublishedMessages, submitRSVP } from './invitation.service.js'
 import { messageSchema, rsvpSchema } from './invitation.schema.js'
 
 export const invitationRouter = Router()
@@ -122,3 +122,39 @@ invitationRouter.post('/:token/messages', async (request, response, next) => {
     next(error)
   }
 })
+
+invitationRouter.get(
+  '/:token/check-in-status',
+  async (request, response, next) => {
+    try {
+      const status = await getCheckInStatus(
+        request.params.token,
+      )
+
+      if (!status) {
+        response.status(404).json({
+          error: 'INVITATION_NOT_FOUND',
+          message: 'Undangan tidak ditemukan.',
+        })
+        return
+      }
+
+      response.json({
+        data: status,
+      })
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.name === 'INVITATION_INACTIVE'
+      ) {
+        response.status(410).json({
+          error: 'INVITATION_INACTIVE',
+          message: 'Undangan sudah tidak aktif.',
+        })
+        return
+      }
+
+      next(error)
+    }
+  },
+)

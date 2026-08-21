@@ -106,6 +106,14 @@ async function request<T>(
 
 export const weddingApi = {
   getInvitation: (token: string) => request<import('../types/wedding').InvitationData>(`/invitations/${encodeURIComponent(token)}`),
+  getCheckInStatus: (token: string) =>request<{
+    checkedIn: boolean
+    checkedInAt: string | null
+  }>(
+    `/invitations/${encodeURIComponent(
+      token,
+    )}/check-in-status`,
+  ),
   submitRSVP: async (token: string, payload: { name: string; attendance: 'attending' | 'not_attending'; guestCount: number; babyCount: number }) => {
     const result = await request<{
       name: string

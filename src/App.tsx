@@ -14,6 +14,7 @@ import { MusicControl } from './components/MusicControl'
 import { FallingPetals } from './components/FallingPetals'
 import type { MessageItem, RSVPSubmission } from './types/wedding'
 import { useInvitation } from './hooks/useInvitation'
+import { useCheckInStatus } from './hooks/useCheckInStatus'
 import { weddingApi } from './services/api'
 import { weddingConfig } from './data/wedding'
 import { useScrollSpy } from './hooks/useScrollSpy'
@@ -142,6 +143,11 @@ function WeddingInvitationApp() {
     qrDataUrl: invitation.rsvp.qrDataUrl,
   } : null)
   const [messages, setMessages] = useState<MessageItem[]>([])
+  const checkInStatus = useCheckInStatus(
+    invitationToken,
+    invitationValid &&
+    existingRsvp?.attendance === 'attending',
+  )
 
   useEffect(() => {
     if (!invitationValid) return
@@ -160,6 +166,8 @@ function WeddingInvitationApp() {
       // available so the guest can explicitly start it.
       setMusicPlaying(false)
     })
+
+
   }
 
   const toggleMusic = () => {
@@ -271,7 +279,10 @@ function WeddingInvitationApp() {
             validToken={invitationValid}
             quota={invitation?.quota ?? 0}
             existingRSVP={existingRsvp}
-            guestName={invitation?.guestName ?? 'Tamu Undangan'}
+            guestName={
+              invitation?.guestName ?? 'Tamu Undangan'
+            }
+            checkedInAt={checkInStatus.checkedInAt}
             onSubmit={handleRSVP}
           />
           <MessageSection

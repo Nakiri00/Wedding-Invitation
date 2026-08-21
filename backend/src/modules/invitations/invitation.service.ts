@@ -67,6 +67,36 @@ export async function getInvitation(token: string) {
       : null,
   }
 }
+export async function getCheckInStatus(
+  token: string,
+) {
+  const invitation =
+    await prisma.invitation.findUnique({
+      where: { token },
+      select: {
+        status: true,
+
+        attendance: {
+          select: {
+            checkedInAt: true,
+          },
+        },
+      },
+    })
+
+  if (!invitation) return null
+
+  assertActiveInvitation(invitation.status)
+
+  return {
+    checkedIn: Boolean(
+      invitation.attendance?.checkedInAt,
+    ),
+
+    checkedInAt:
+      invitation.attendance?.checkedInAt ?? null,
+  }
+}
 
 export async function submitRSVP(token: string, input: z.infer<typeof rsvpSchema>) {
   const invitation = await prisma.invitation.findUnique({ where: { token } })

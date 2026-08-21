@@ -11,16 +11,18 @@ interface RSVPSectionProps {
   quota: number
   existingRSVP: RSVPSubmission | null
   guestName: string
+  checkedInAt?: string | null
   onSubmit: (submission: RSVPSubmission) => void
 }
 
-export function RSVPSection({ token, validToken, quota, existingRSVP, guestName, onSubmit }: RSVPSectionProps) {
+export function RSVPSection({ token, validToken, quota, existingRSVP, guestName, checkedInAt = null, onSubmit }: RSVPSectionProps) {
   const [name, setName] = useState(guestName || '')
   const [attendance, setAttendance] = useState<'attending' | 'not_attending'>('attending')
   const [guests, setGuests] = useState(1)
   const [babyCount, setBabyCount] = useState(0)
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -66,10 +68,70 @@ export function RSVPSection({ token, validToken, quota, existingRSVP, guestName,
         </div>
 
         {existingRSVP ? (
-          <div className="rsvp-form success-panel" id="rsvp-result">
+        existingRSVP.attendance === 'attending' &&
+        checkedInAt ? (
+
+          <div
+            className="rsvp-form success-panel arrival-confirmation"
+            id="rsvp-result"
+            role="status"
+            aria-live="polite"
+          >
+            <div
+              className="arrival-confirmation__icon"
+              aria-hidden="true"
+            >
+              ✓
+            </div>
+
+            <p className="eyebrow">
+              Kehadiran Terkonfirmasi
+            </p>
+
+            <h3>Terima kasih telah datang</h3>
+
+            <p>
+              Kehadiran{' '}
+              <strong>{existingRSVP.name}</strong>{' '}
+              telah tercatat. Selamat menikmati rangkaian
+              acara dan menjadi bagian dari hari bahagia
+              kami.
+            </p>
+
+            <div className="arrival-confirmation__time">
+              <span>Waktu check-in</span>
+
+              <strong>
+                {new Date(checkedInAt).toLocaleString(
+                  'id-ID',
+                  {
+                    dateStyle: 'medium',
+                    timeStyle: 'short',
+                  },
+                )}
+              </strong>
+            </div>
+
+            <div
+              className="arrival-confirmation__ornament"
+              aria-hidden="true"
+            >
+              <span />
+              <strong>♡</strong>
+              <span />
+            </div>
+          </div>
+        ) : (
+          <div
+            className="rsvp-form success-panel"
+            id="rsvp-result"
+          >
             <div className="success-icon">✓</div>
+
             <p className="eyebrow">RSVP Received</p>
+
             <h3>Terima kasih, {existingRSVP.name}.</h3>
+
             <p>
               {existingRSVP.attendance === 'attending'
                 ? `Kami menantikan kehadiran Anda dengan ${existingRSVP.guests} kursi.`
@@ -78,30 +140,60 @@ export function RSVPSection({ token, validToken, quota, existingRSVP, guestName,
 
             {existingRSVP.attendance === 'attending' && (
               <div className="qr-ticket">
-                <div className="qr-ticket-header">
-                  <span className="qr-kicker">Guest check-in</span>
-                  <strong>INV-{token.slice(0, 6).toUpperCase()}</strong>
-                </div>
-                <div className="qr-code-frame">
-                  <div className="qr-code" aria-label="QR code check-in">
-                    {existingRSVP.qrDataUrl ? (
-                      <img src={existingRSVP.qrDataUrl} alt="QR code check-in undangan" />
-                    ) : (
-                      Array.from({ length: 121 }, (_, index) => (
-                        <i key={index} className={((index * 17 + token.length * 13 + index % 7) % 5 < 2) ? 'on' : ''} />
-                      ))
+                {existingRSVP.qrDataUrl ? (
+                  <img
+                    className="qr-image"
+                    src={existingRSVP.qrDataUrl}
+                    alt={`QR check-in ${existingRSVP.name}`}
+                  />
+                ) : (
+                  <div
+                    className="fake-qr"
+                    aria-label="Kode check-in"
+                  >
+                    {Array.from(
+                      { length: 121 },
+                      (_, index) => (
+                        <i
+                          key={index}
+                          className={
+                            (
+                              index * 17 +
+                              token.length * 13 +
+                              (index % 7)
+                            ) %
+                                5 <
+                              2
+                                ? 'on'
+                                : ''
+                          }
+                        />
+                      ),
                     )}
                   </div>
-                </div>
+                )}
+
                 <div className="qr-ticket-meta">
-                  <span>{existingRSVP.guests} kursi</span>
-                  {existingRSVP.babyCount > 0 && <span>{existingRSVP.babyCount} bayi/anak</span>}
+                  <span>
+                    {existingRSVP.guests} kursi
+                  </span>
+
+                  {existingRSVP.babyCount > 0 && (
+                    <span>
+                      {existingRSVP.babyCount} bayi/anak
+                    </span>
+                  )}
                 </div>
-                <small>Tunjukkan QR code ini kepada staff saat hari H.</small>
+
+                <small>
+                  Tunjukkan QR code ini kepada staff saat
+                  hari H.
+                </small>
               </div>
             )}
           </div>
-        ) : (
+        )
+      ): (
           <form className="rsvp-form" onSubmit={submit} noValidate>
             <label className="rsvp-name-field">
               <span className="rsvp-field-label">Nama</span>
