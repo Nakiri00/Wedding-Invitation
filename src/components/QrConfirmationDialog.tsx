@@ -81,113 +81,118 @@ export function QrConfirmationDialog({
       className="qr-confirmation-backdrop"
       role="presentation"
     >
-      <section
-        className="qr-confirmation-dialog"
-        role="alertdialog"
-        aria-modal="true"
-        aria-labelledby="qr-confirmation-title"
-        aria-describedby="qr-confirmation-description"
+      <div
+  className="qr-confirmation-dialog"
+  role="alertdialog"
+  aria-modal="true"
+  aria-labelledby="qr-confirmation-title"
+  aria-describedby="qr-confirmation-description"
+>
+  <header className="qr-confirmation-header">
+    <div
+      className={`qr-confirmation-icon ${
+        alreadyCheckedIn
+          ? 'qr-confirmation-icon--warning'
+          : 'qr-confirmation-icon--ready'
+      }`}
+      aria-hidden="true"
+    >
+      {alreadyCheckedIn ? '!' : '✓'}
+    </div>
+
+    <p className="qr-confirmation-kicker">
+      Wedding Check-in
+    </p>
+
+    <h2 id="qr-confirmation-title">
+      {alreadyCheckedIn
+        ? 'Tamu sudah check-in'
+        : 'Konfirmasi kehadiran'}
+    </h2>
+
+    <p
+      id="qr-confirmation-description"
+      className="qr-confirmation-description"
+    >
+      {alreadyCheckedIn
+        ? 'Tamu ini sebelumnya sudah melakukan check-in.'
+        : 'Pastikan data tamu berikut sudah sesuai sebelum mengonfirmasi kehadiran.'}
+    </p>
+  </header>
+
+  <dl className="qr-confirmation-details">
+    <div className="qr-confirmation-detail qr-confirmation-detail--wide">
+      <dt>Nama tamu</dt>
+      <dd>{candidate.guestName}</dd>
+    </div>
+
+    <div className="qr-confirmation-detail">
+      <dt>Jumlah tamu</dt>
+      <dd>
+        <strong>{candidate.guestCount}</strong>
+        <span>orang</span>
+      </dd>
+    </div>
+
+    <div className="qr-confirmation-detail">
+      <dt>Bayi</dt>
+      <dd>
+        <strong>{candidate.babyCount}</strong>
+        <span>bayi</span>
+      </dd>
+    </div>
+
+    <div className="qr-confirmation-detail qr-confirmation-detail--wide">
+      <dt>Kuota undangan</dt>
+      <dd>
+        <strong>{candidate.quota}</strong>
+        <span>orang</span>
+      </dd>
+    </div>
+  </dl>
+
+  {alreadyCheckedIn && candidate.checkedInAt && (
+    <div className="qr-confirmation-warning" role="status">
+      Sudah check-in pada{' '}
+      <strong>
+        {new Date(candidate.checkedInAt).toLocaleString('id-ID')}
+      </strong>
+    </div>
+  )}
+
+  {error && (
+    <div className="qr-confirmation-error" role="alert">
+      {error}
+    </div>
+  )}
+
+  <div className="qr-confirmation-actions">
+    <button
+      className="qr-confirmation-button qr-confirmation-button--secondary"
+      type="button"
+      onClick={onCancel}
+      disabled={confirming}
+    >
+      {alreadyCheckedIn ? 'Tutup' : 'Batal'}
+    </button>
+
+    {!alreadyCheckedIn && (
+      <button
+        ref={confirmButtonRef}
+        className="qr-confirmation-button qr-confirmation-button--primary"
+        type="button"
+        onClick={onConfirm}
+        disabled={confirming}
       >
-        <div
-          className={`qr-confirmation-dialog__icon ${
-            alreadyCheckedIn
-              ? 'is-warning'
-              : 'is-ready'
-          }`}
-          aria-hidden="true"
-        >
-          {alreadyCheckedIn ? '!' : '✓'}
-        </div>
+        <span aria-hidden="true">✓</span>
 
-        <p className="qr-confirmation-dialog__kicker">
-          Wedding Check-in
-        </p>
-
-        <h2 id="qr-confirmation-title">
-          {alreadyCheckedIn
-            ? 'Tamu sudah check-in'
-            : 'Konfirmasi kehadiran'}
-        </h2>
-
-        <p
-          id="qr-confirmation-description"
-          className="qr-confirmation-dialog__description"
-        >
-          {alreadyCheckedIn
-            ? 'QR ini sebelumnya sudah digunakan.'
-            : 'Pastikan data tamu berikut sudah sesuai.'}
-        </p>
-
-        <dl className="qr-confirmation-dialog__details">
-          <div>
-            <dt>Nama tamu</dt>
-            <dd>{candidate.guestName}</dd>
-          </div>
-
-          <div>
-            <dt>Jumlah tamu</dt>
-            <dd>{candidate.guestCount} orang</dd>
-          </div>
-
-          <div>
-            <dt>Bayi</dt>
-            <dd>{candidate.babyCount} bayi</dd>
-          </div>
-
-          <div>
-            <dt>Kuota undangan</dt>
-            <dd>{candidate.quota} orang</dd>
-          </div>
-
-          {candidate.checkedInAt && (
-            <div>
-              <dt>Waktu check-in</dt>
-              <dd>
-                {new Date(
-                  candidate.checkedInAt,
-                ).toLocaleString('id-ID', {
-                  dateStyle: 'medium',
-                  timeStyle: 'short',
-                })}
-              </dd>
-            </div>
-          )}
-        </dl>
-
-        {error && (
-          <p
-            className="qr-confirmation-dialog__error"
-            role="alert"
-          >
-            {error}
-          </p>
-        )}
-
-        <div className="qr-confirmation-dialog__actions">
-          <button
-            type="button"
-            className="qr-dialog-button qr-dialog-button--secondary"
-            onClick={onCancel}
-            disabled={confirming}
-          >
-            {alreadyCheckedIn ? 'Tutup' : 'Batal'}
-          </button>
-
-          {!alreadyCheckedIn && (
-            <button
-              ref={confirmButtonRef}
-              type="button"
-              className="qr-dialog-button qr-dialog-button--primary"
-              onClick={onConfirm}
-              disabled={confirming}
-            >
-              {confirming
-                ? 'Mengonfirmasi…'
-                : 'Ya, konfirmasi hadir'}
-            </button>
-          )}
-        </div>
-      </section>
+        {confirming
+          ? 'Memproses kehadiran…'
+          : 'Konfirmasi hadir'}
+      </button>
+    )}
+  </div>
+</div>
     </div>
   );
 }
