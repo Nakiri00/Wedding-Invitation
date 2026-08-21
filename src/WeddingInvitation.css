@@ -802,7 +802,77 @@
 /* -------------------------------------------------------------------------- */
 /* RSVP                                                                         */
 /* -------------------------------------------------------------------------- */
+.rsvp-form.success-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
 
+.rsvp-form.success-panel > p {
+  max-width: 32rem;
+  margin-inline: auto;
+}
+
+.qr-ticket {
+  width: min(100%, 24rem);
+  margin: 1.5rem auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.qr-ticket-frame {
+  width: min(100%, 18rem);
+  margin-inline: auto;
+  display: grid;
+  place-items: center;
+}
+
+.qr-ticket-frame img,
+.qr-ticket-code {
+  display: block;
+  width: min(100%, 17rem);
+  height: auto;
+  margin-inline: auto;
+}
+
+.qr-ticket-meta {
+  width: 100%;
+  margin-top: 0.9rem;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.qr-ticket > small {
+  display: block;
+  width: 100%;
+  margin-top: 0.75rem;
+  text-align: center;
+  line-height: 1.6;
+}
+
+@media (max-width: 480px) {
+  .rsvp-form.success-panel {
+    padding-inline: 1.25rem;
+  }
+
+  .qr-ticket {
+    width: 100%;
+  }
+
+  .qr-ticket-frame {
+    width: min(100%, 16rem);
+  }
+
+  .qr-ticket-frame img,
+  .qr-ticket-code {
+    width: min(100%, 15rem);
+  }
+}
 .wedding-ui .rsvp-section { overflow: hidden; }
 .wedding-ui .rsvp-bg { filter: blur(1px) saturate(.7); transform: scale(1.04); }
 .wedding-ui .rsvp-veil { position: absolute; inset: 0; background: rgba(246,241,231,.82); }

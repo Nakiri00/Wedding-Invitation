@@ -39,38 +39,40 @@ export function GallerySection() {
           </div>
         </Reveal>
 
-        <Reveal
-          className="couple-gallery"
+        <Reveal className="gallery-reveal">
+        <div
+          className="prewed-collage"
           aria-label="Galeri foto Konan dan Nilo"
         >
           {weddingConfig.gallery.map((photo, index) => (
             <figure
-              className={`couple-gallery__item couple-gallery__item--${
+              className={`prewed-collage__photo prewed-collage__photo--${
                 (index % 6) + 1
               }`}
               key={photo.src}
             >
-              <div className="couple-gallery__frame">
-                <img
-                  src={photo.src}
-                  alt={photo.alt}
-                  loading="lazy"
-                  decoding="async"
-                  draggable="false"
-                />
-              </div>
+              <img
+                src={photo.src}
+                alt={photo.alt}
+                loading="lazy"
+                decoding="async"
+                draggable="false"
+              />
+
+              <span
+                className="prewed-collage__frame"
+                aria-hidden="true"
+              />
             </figure>
           ))}
-        </Reveal>
-
+        </div>
+      </Reveal>
         <Reveal className="gallery-closing">
           <span aria-hidden="true">✦</span>
-
           <p>
             Setiap foto menyimpan cerita, setiap momen
             membawa kami semakin dekat pada hari bahagia.
           </p>
-
           <strong>
             {weddingConfig.couple.groom.shortName}
             <em>&amp;</em>

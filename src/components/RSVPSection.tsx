@@ -100,7 +100,7 @@ export function RSVPSection({ token, validToken, quota, existingRSVP, guestName,
 
             <div className="arrival-confirmation__time">
               <span>Waktu check-in</span>
-
+              <br></br>
               <strong>
                 {new Date(checkedInAt).toLocaleString(
                   'id-ID',
