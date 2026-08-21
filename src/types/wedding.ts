@@ -16,6 +16,7 @@ export interface InvitationData {
   guestName: string
   quota: number
   status: 'ACTIVE' | 'REVOKED'
+  hasMessage: boolean
   rsvp: {
     name: string
     attendance: AttendanceStatus

@@ -939,6 +939,61 @@
 .wedding-ui .wish-form-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .wedding-ui .wish-form-footer > small { color: #8a8178; font-size: 9px; }
 .wedding-ui .wish-form-footer .outline-btn { margin-top: 0; }
+.wish-thank-you {
+  position: relative;
+  overflow: hidden;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 17rem;
+  padding: 2rem;
+  border: 1px solid rgba(47, 107, 80, 0.18);
+  border-radius: 1.5rem;
+  background:
+    radial-gradient(
+      circle at top,
+      rgba(226, 239, 228, 0.85),
+      transparent 60%
+    ),
+    rgba(255, 253, 248, 0.95);
+  text-align: center;
+}
+
+.wish-thank-you__ornament {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.wish-thank-you__ornament span {
+  width: 2.5rem;
+  height: 1px;
+  background: rgba(47, 107, 80, 0.35);
+}
+
+.wish-thank-you__ornament strong {
+  color: #2f6b50;
+  font-size: 1.75rem;
+  font-weight: 400;
+}
+
+.wish-thank-you h3 {
+  margin: 0.5rem 0 0.75rem;
+  color: #173e31;
+  font-family: Georgia, serif;
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 400;
+}
+
+.wish-thank-you > p:last-child {
+  max-width: 27rem;
+  margin: 0;
+  color: #607068;
+  line-height: 1.7;
+}
 
 .wedding-ui .pagination { display: flex; align-items: center; gap: 12px; color: #8a8178; font-size: 9px; }
 .wedding-ui .pagination-controls { display: flex; gap: 5px; }

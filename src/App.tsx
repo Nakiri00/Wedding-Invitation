@@ -278,6 +278,7 @@ function WeddingInvitationApp() {
             guestName={invitation?.guestName ?? ''}
             initialMessages={messages}
             enabled={invitationValid}
+            hasSubmittedInitially={invitation?.hasMessage ?? false}
             onMessageCreated={(message) => setMessages((current) => [message, ...current])}
           />
           <GallerySection />

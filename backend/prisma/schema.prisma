@@ -75,53 +75,53 @@ model Guest {
 }
 
 model RSVP {
-  id             String           @id @default(cuid())
-  invitationId   String           @unique
-  name           String           @db.VarChar(160)
-  attendance     AttendanceStatus
-  guestCount     Int
-  babyCount      Int              @default(0)
-  qrToken        String?          @unique @db.VarChar(64)
-  submittedAt    DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  invitation     Invitation       @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  id           String           @id @default(cuid())
+  invitationId String           @unique
+  name         String           @db.VarChar(160)
+  attendance   AttendanceStatus
+  guestCount   Int
+  babyCount    Int              @default(0)
+  qrToken      String?          @unique @db.VarChar(64)
+  submittedAt  DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  invitation   Invitation       @relation(fields: [invitationId], references: [id], onDelete: Cascade)
 }
 
 model Attendance {
-  id             String         @id @default(cuid())
-  invitationId   String         @unique
-  checkedInAt    DateTime       @default(now())
-  checkedInById  String?
-  source         CheckInSource  @default(STAFF)
-  invitation     Invitation     @relation(fields: [invitationId], references: [id], onDelete: Cascade)
-  checkedInBy    User?          @relation(fields: [checkedInById], references: [id], onDelete: SetNull)
+  id            String        @id @default(cuid())
+  invitationId  String        @unique
+  checkedInAt   DateTime      @default(now())
+  checkedInById String?
+  source        CheckInSource @default(STAFF)
+  invitation    Invitation    @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  checkedInBy   User?         @relation(fields: [checkedInById], references: [id], onDelete: SetNull)
 
   @@index([checkedInAt])
 }
 
 model Message {
-  id           String         @id @default(cuid())
-  invitationId String?
-  guestName    String         @db.VarChar(160)
-  message      String         @db.VarChar(1000)
-  status       MessageStatus  @default(PENDING)
-  createdAt    DateTime       @default(now())
+  id           String        @id @default(cuid())
+  invitationId String?       @unique
+  guestName    String        @db.VarChar(160)
+  message      String        @db.VarChar(1000)
+  status       MessageStatus @default(PUBLISHED)
+  createdAt    DateTime      @default(now())
   moderatedAt  DateTime?
-  invitation   Invitation?    @relation(fields: [invitationId], references: [id], onDelete: SetNull)
+  invitation   Invitation?   @relation(fields: [invitationId], references: [id], onDelete: Cascade)
 
   @@index([status, createdAt])
   @@index([invitationId])
 }
 
 model AuditLog {
-  id         String   @id @default(cuid())
-  actorId    String?
-  action     String   @db.VarChar(80)
-  entity     String   @db.VarChar(80)
-  entityId   String?  @db.VarChar(64)
-  metadata   Json?
-  createdAt  DateTime @default(now())
-  actor      User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  id        String   @id @default(cuid())
+  actorId   String?
+  action    String   @db.VarChar(80)
+  entity    String   @db.VarChar(80)
+  entityId  String?  @db.VarChar(64)
+  metadata  Json?
+  createdAt DateTime @default(now())
+  actor     User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
 
   @@index([entity, entityId])
   @@index([createdAt])

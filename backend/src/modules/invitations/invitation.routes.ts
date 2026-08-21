@@ -73,17 +73,52 @@ invitationRouter.get('/:token/messages', async (request, response, next) => {
 invitationRouter.post('/:token/messages', async (request, response, next) => {
   try {
     const input = messageSchema.parse(request.body)
-    const message = await createMessage(request.params.token, input)
+
+    const message = await createMessage(
+      request.params.token,
+      input,
+    )
+
     if (!message) {
-      response.status(404).json({ error: 'INVITATION_NOT_FOUND', message: 'Undangan tidak ditemukan.' })
+      response.status(404).json({
+        error: 'INVITATION_NOT_FOUND',
+        message: 'Undangan tidak ditemukan.',
+      })
       return
     }
-    response.status(201).json({ data: message })
+
+    response.status(201).json({
+      data: message,
+    })
   } catch (error) {
-    if (error instanceof Error && error.name === 'INVITATION_INACTIVE') {
-      response.status(410).json({ error: 'INVITATION_INACTIVE', message: 'Undangan sudah tidak aktif.' })
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2002'
+    ) {
+      response.status(409).json({
+        error: 'MESSAGE_ALREADY_SUBMITTED',
+        message: 'Pesan untuk undangan ini sudah pernah dikirim.',
+      })
       return
     }
+
+    if (error instanceof Error) {
+      const map: Record<string, number> = {
+        INVITATION_INACTIVE: 410,
+        MESSAGE_ALREADY_SUBMITTED: 409,
+      }
+
+      const status = map[error.name]
+
+      if (status) {
+        response.status(status).json({
+          error: error.name,
+          message: error.message,
+        })
+        return
+      }
+    }
+
     next(error)
   }
 })

@@ -20,6 +20,12 @@ const publicInvitationSelect = {
       submittedAt: true,
     },
   },
+  messages: {
+    select: {
+      id: true,
+    },
+    take: 1,
+  },
 } as const
 
 function assertActiveInvitation(status: string) {
@@ -132,24 +138,62 @@ export async function listPublishedMessages(token: string) {
   }))
 }
 
-export async function createMessage(token: string, input: z.infer<typeof messageSchema>) {
-  const invitation = await prisma.invitation.findUnique({ where: { token } })
+export async function createMessage(
+  token: string,
+  input: z.infer<typeof messageSchema>,
+) {
+  const invitation = await prisma.invitation.findUnique({
+    where: { token },
+  })
+
   if (!invitation) return null
+
   assertActiveInvitation(invitation.status)
 
-  return prisma.message.create({
+  const existingMessage = await prisma.message.findFirst({
+    where: {
+      invitationId: invitation.id,
+    },
+    select: {
+      id: true,
+    },
+  })
+
+  if (existingMessage) {
+    const error = new Error(
+      'Pesan untuk undangan ini sudah pernah dikirim.',
+    )
+
+    error.name = 'MESSAGE_ALREADY_SUBMITTED'
+    throw error
+  }
+
+  const message = await prisma.message.create({
     data: {
       invitationId: invitation.id,
       guestName: input.name,
       message: input.message,
-      status: 'PENDING',
+      status: 'PUBLISHED',
     },
-    select: { id: true, guestName: true, message: true, status: true, createdAt: true },
-  }).then((message) => ({
+    select: {
+      id: true,
+      guestName: true,
+      message: true,
+      status: true,
+      createdAt: true,
+    },
+  })
+
+  return {
     id: message.id,
     name: message.guestName,
     message: message.message,
-    status: message.status === 'PUBLISHED' ? 'published' as const : message.status === 'HIDDEN' ? 'hidden' as const : 'pending' as const,
+    status:
+      message.status === 'PUBLISHED'
+        ? ('published' as const)
+        : message.status === 'HIDDEN'
+          ? ('hidden' as const)
+          : ('pending' as const),
     createdAt: message.createdAt,
-  }))
+  }
 }

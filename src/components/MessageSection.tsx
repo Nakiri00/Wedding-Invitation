@@ -9,16 +9,18 @@ import type { MessageItem } from '../types/wedding'
 interface MessageSectionProps {
   token: string
   guestName: string
-  initialMessages?: MessageItem[]
+  initialMessages: MessageItem[]
   enabled: boolean
+  hasSubmittedInitially: boolean
   onMessageCreated: (message: MessageItem) => void
 }
 
-export function MessageSection({ token, guestName, initialMessages: serverMessages, enabled, onMessageCreated }: MessageSectionProps) {
+export function MessageSection({ token, guestName, initialMessages: serverMessages, enabled, hasSubmittedInitially, onMessageCreated }: MessageSectionProps) {
   const [message, setMessage] = useState('')
   const [name, setName] = useState('')
   const [status, setStatus] = useState('')
   const [page, setPage] = useState(1)
+  const [submitting, setSubmitting] = useState(false)
 
   const messages = serverMessages ?? []
   const publishedMessages = useMemo(() => messages.filter((item) => item.status === 'published'), [messages])
@@ -28,6 +30,13 @@ export function MessageSection({ token, guestName, initialMessages: serverMessag
     () => publishedMessages.slice((page - 1) * pageSize, page * pageSize),
     [publishedMessages, page],
   )
+  const [hasSubmitted, setHasSubmitted] = useState(
+  hasSubmittedInitially,
+  )
+
+  useEffect(() => {
+    setHasSubmitted(hasSubmittedInitially)
+  }, [token, hasSubmittedInitially])
 
   useEffect(() => {
     if (totalPages <= 1) return
@@ -39,17 +48,41 @@ export function MessageSection({ token, guestName, initialMessages: serverMessag
 
   const submit = async (event: FormEvent) => {
     event.preventDefault()
+
     const senderName = name.trim() || guestName.trim()
-    if (!enabled || !senderName || !message.trim()) return
+    const trimmedMessage = message.trim()
+
+    if (
+      !enabled ||
+      hasSubmitted ||
+      submitting ||
+      !senderName ||
+      !trimmedMessage
+    ) {
+      return
+    }
+
+    setSubmitting(true)
+    setStatus('')
 
     try {
-      const created = await weddingApi.createMessage(token, { name: senderName, message: message.trim() })
+      const created = await weddingApi.createMessage(token, {
+        name: senderName,
+        message: trimmedMessage,
+      })
+
       onMessageCreated(created)
       setPage(1)
       setMessage('')
-      setStatus('Pesan diterima dan menunggu moderasi.')
+      setHasSubmitted(true)
     } catch (reason: unknown) {
-      setStatus(reason instanceof Error ? reason.message : 'Pesan gagal dikirim.')
+      setStatus(
+        reason instanceof Error
+          ? reason.message
+          : 'Pesan gagal dikirim.',
+      )
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -64,26 +97,105 @@ export function MessageSection({ token, guestName, initialMessages: serverMessag
 
         <Reveal className="wish-form-shell">
           <div className="wish-form-copy">
-            <p className="eyebrow">Send Your Wishes</p>
-            <h3>Leave a little note for us.</h3>
-            <p>Ucapan akan tampil setelah melalui moderasi.</p>
+            <p className="eyebrow">
+              {hasSubmitted ? 'Thank You' : 'Send Your Wishes'}
+            </p>
+
+            <h3>
+              {hasSubmitted
+                ? 'Your kind words mean so much to us.'
+                : 'Leave a little note for us.'}
+            </h3>
+
+            <p>
+              {hasSubmitted
+                ? 'Pesan dan doa terbaikmu telah menjadi bagian dari hari bahagia kami.'
+                : 'Ucapan akan langsung tersampaikan kepada kedua mempelai.'}
+            </p>
           </div>
-          <form className="wish-form" onSubmit={submit}>
-            <label>
-              Nama
-              <input value={name} onChange={(e) => setName(e.target.value)} placeholder={guestName || 'Nama Anda'} disabled={!enabled} />
-            </label>
-            <label>
-              Pesan
-              <textarea value={message} onChange={(e) => setMessage(e.target.value)} maxLength={240} rows={4} placeholder="Tulis ucapan terbaik..." disabled={!enabled} />
-            </label>
-            <div className="wish-form-footer">
-              <small>{message.length}/240</small>
-              <button className="outline-btn" type="submit" disabled={!enabled}>Kirim Pesan</button>
+
+          {hasSubmitted ? (
+            <div
+              className="wish-thank-you"
+              role="status"
+              aria-live="polite"
+            >
+              <div
+                className="wish-thank-you__ornament"
+                aria-hidden="true"
+              >
+                <span />
+                <strong>♡</strong>
+                <span />
+              </div>
+
+              <p className="eyebrow">PESAN TELAH TERKIRIM</p>
+
+              <h3>Terima kasih atas pesan indahnya</h3>
+
+              <p>
+                Pesan dari <strong>{name.trim() || guestName}</strong> telah
+                tersampaikan. Doa dan ucapanmu sangat berarti bagi kami.
+              </p>
             </div>
-            {status && <small className="form-status" role="status">{status}</small>}
-            {!enabled && <small className="form-status">Pesan aktif setelah link undangan personal tervalidasi.</small>}
-          </form>
+          ) : (
+            <form className="wish-form" onSubmit={submit}>
+              <label>
+                Nama
+
+                <input
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  placeholder={guestName || 'Nama Anda'}
+                  disabled={!enabled || submitting}
+                  maxLength={120}
+                />
+              </label>
+
+              <label>
+                Pesan
+
+                <textarea
+                  value={message}
+                  onChange={(event) => setMessage(event.target.value)}
+                  maxLength={240}
+                  rows={4}
+                  placeholder="Tulis ucapan terbaik..."
+                  disabled={!enabled || submitting}
+                  required
+                />
+              </label>
+
+              <div className="wish-form-footer">
+                <small>{message.length}/240</small>
+
+                <button
+                  className="outline-btn"
+                  type="submit"
+                  disabled={
+                    !enabled ||
+                    submitting ||
+                    !message.trim() ||
+                    !(name.trim() || guestName.trim())
+                  }
+                >
+                  {submitting ? 'Mengirim…' : 'Kirim Pesan'}
+                </button>
+              </div>
+
+              {status && (
+                <small className="form-status" role="alert">
+                  {status}
+                </small>
+              )}
+
+              {!enabled && (
+                <small className="form-status">
+                  Pesan aktif setelah link undangan personal tervalidasi.
+                </small>
+              )}
+            </form>
+          )}
         </Reveal>
 
         <Reveal className="wishes-grid">

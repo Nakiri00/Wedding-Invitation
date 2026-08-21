@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react'
 import { Scanner } from '@yudiel/react-qr-scanner'
 import { adminApi, type AuthSession } from '../services/adminApi'
-
+import { QrConfirmationDialog,type QrCheckInCandidate,} from '../components/QrConfirmationDialog';
 interface Props { session: AuthSession; onLogout: () => void }
-interface CheckInPreview { invitationId: string; guestName: string; quota: number; guestCount: number; babyCount: number; checkedInAt: string | null; qrToken: string }
+// interface CheckInPreview { invitationId: string; guestName: string; quota: number; guestCount: number; babyCount: number; checkedInAt: string | null; qrToken: string }
 interface CheckInResult { guestName: string; guestCount: number; babyCount: number; checkedInAt: string; source: 'STAFF' | 'WALK_IN' }
 interface SearchResult { id: string; guestName: string; contact: string | null; quota: number; attendance: string | null; guestCount: number | null; checkedInAt: string | null }
 
 export function StaffPage({ session, onLogout }: Props) {
   const [value, setValue] = useState('')
-  const [preview, setPreview] = useState<CheckInPreview | null>(null)
+  // const [preview, setPreview] = useState<CheckInPreview | null>(null)
   const [result, setResult] = useState<CheckInResult | null>(null)
   const [error, setError] = useState('')
   const [scanning, setScanning] = useState(false)
@@ -18,31 +18,68 @@ export function StaffPage({ session, onLogout }: Props) {
   const [results, setResults] = useState<SearchResult[]>([])
   const [walkGuests, setWalkGuests] = useState(1)
   const [walkBabies, setWalkBabies] = useState(0)
+  const [pendingCheckIn, setPendingCheckIn] = useState<QrCheckInCandidate | null>(null);
+  const [confirmingCheckIn, setConfirmingCheckIn] = useState(false);
+  const [checkInError, setCheckInError] = useState('');
 
   useEffect(() => () => stopScanner(), [])
 
   async function validateQr(code: string) {
     const trimmed = code.trim()
     if (!trimmed) return
-    setError(''); setResult(null)
+
+    setError('')
+    setCheckInError('')
+    setResult(null)
+
     try {
       const data = await adminApi.validateQr(trimmed)
-      setPreview({ ...data, qrToken: trimmed })
+
+      setPendingCheckIn({
+        ...data,
+        qrToken: trimmed,
+      })
+
       setValue('')
-    } catch (e) { setPreview(null); setError(e instanceof Error ? e.message : 'QR tidak valid.') }
+    } catch (e) {
+      setPendingCheckIn(null)
+      setError(e instanceof Error ? e.message : 'QR tidak valid.')
+    }
   }
 
   async function confirmCheckIn() {
-    if (!preview) return
+    if (!pendingCheckIn || confirmingCheckIn) return
+
+    setConfirmingCheckIn(true)
+    setCheckInError('')
     setError('')
+
     try {
-      const data = await adminApi.checkIn(preview.qrToken)
-      setResult(data); setPreview(null)
-    } catch (e) { setError(e instanceof Error ? e.message : 'Check-in gagal.') }
+      const data = await adminApi.checkIn(pendingCheckIn.qrToken)
+
+      setResult(data)
+      setPendingCheckIn(null)
+    } catch (e) {
+      setCheckInError(
+        e instanceof Error ? e.message : 'Check-in gagal.',
+      )
+    } finally {
+      setConfirmingCheckIn(false)
+    }
+  }
+
+  function cancelCheckIn() {
+    if (confirmingCheckIn) return
+
+    setPendingCheckIn(null)
+    setCheckInError('')
   }
 
   function startScanner() {
-    setError(''); setPreview(null); setResult(null)
+    setError('')
+    setCheckInError('')
+    setPendingCheckIn(null)
+    setResult(null)
     setScanning(true)
   }
 
@@ -94,7 +131,13 @@ export function StaffPage({ session, onLogout }: Props) {
           
           <div className="manual-checkin"><label>Input QR manual<input value={value} onChange={e => setValue(e.target.value)} placeholder="wedding:checkin:..." onKeyDown={e => e.key === 'Enter' && validateQr(value)} /></label><button className="primary-button" onClick={() => validateQr(value)} disabled={!value.trim()}>Validasi</button></div>
 
-          {preview && <div className="checkin-preview panel"><span className="console-kicker">VALID QR</span><h3>{preview.guestName}</h3><p>{preview.guestCount} counted guest · {preview.babyCount} baby · quota {preview.quota}</p>{preview.checkedInAt ? <div className="form-error">Sudah check-in pada {new Date(preview.checkedInAt).toLocaleString('id-ID')}.</div> : <button className="primary-button" onClick={confirmCheckIn}>Confirm Check-in</button>}</div>}
+          <QrConfirmationDialog
+            candidate={pendingCheckIn}
+            confirming={confirmingCheckIn}
+            error={checkInError}
+            onCancel={cancelCheckIn}
+            onConfirm={confirmCheckIn}
+          />
           {result && <div className="checkin-success"><span>✓</span><div><strong>{result.guestName}</strong><p>{result.guestCount} guest · {result.babyCount} baby · {result.source}</p><small>Checked-in {new Date(result.checkedInAt).toLocaleTimeString('id-ID')}</small></div></div>}
 
           <button className="text-button walk-in-toggle" onClick={() => setWalkInMode(v => !v)}>{walkInMode ? 'Tutup Walk-in Override' : 'Buka Walk-in Override'}</button>
