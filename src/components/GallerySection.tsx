@@ -74,9 +74,7 @@ export function GallerySection() {
             membawa kami semakin dekat pada hari bahagia.
           </p>
           <strong>
-            {weddingConfig.couple.groom.shortName}
-            <em>&amp;</em>
-            {weddingConfig.couple.bride.shortName}
+            {weddingConfig.couple.groom.shortName} <em>&amp;</em> {weddingConfig.couple.bride.shortName}
           </strong>
         </Reveal>
 
