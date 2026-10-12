@@ -27,9 +27,5 @@ dist-ssr
 *.sln
 *.sw?
 *.md
-<<<<<<< HEAD
-*.webp
 *.jpg
-=======
 *.patch
->>>>>>> a4bd4d9c8fd04fc3a402e582520005391c601dbc
