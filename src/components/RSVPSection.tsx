@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import type { RSVPSubmission } from '../types/wedding'
 import { Reveal } from './Reveal'
+import { SakuraQrCard } from './SakuraQrCard'
 import { weddingApi } from '../services/api'
 import { weddingAssets } from '../assets/wedding/weddingAssets'
 
@@ -121,7 +122,7 @@ export function RSVPSection({ token, validToken, quota, existingRSVP, guestName,
           </div>
         ) : (
           <div
-            className="rsvp-form success-panel"
+            className={`rsvp-form success-panel${existingRSVP.attendance === 'attending' ? ' sakura-ticket-panel' : ''}`}
             id="rsvp-result"
           >
             <div className="success-icon">✓</div>
@@ -137,39 +138,11 @@ export function RSVPSection({ token, validToken, quota, existingRSVP, guestName,
             </p>
 
             {existingRSVP.attendance === 'attending' && (
-              <div className="qr-ticket">
-                {existingRSVP.qrDataUrl ? (
-                  <img
-                    className="qr-image"
-                    src={existingRSVP.qrDataUrl}
-                    alt={`QR check-in ${existingRSVP.name}`}
-                  />
-                ) : (
-                  <div
-                    className="fake-qr"
-                    aria-label="Kode check-in"
-                  >
-                    {Array.from(
-                      { length: 121 },
-                      (_, index) => (
-                        <i
-                          key={index}
-                          className={
-                            (
-                              index * 17 +
-                              token.length * 13 +
-                              (index % 7)
-                            ) %
-                                5 <
-                              2
-                                ? 'on'
-                                : ''
-                          }
-                        />
-                      ),
-                    )}
-                  </div>
-                )}
+              <div className="qr-ticket qr-ticket--sakura">
+                <SakuraQrCard
+                  qrDataUrl={existingRSVP.qrDataUrl}
+                  guestName={existingRSVP.name}
+                />
 
                 <div className="qr-ticket-meta">
                   <span>

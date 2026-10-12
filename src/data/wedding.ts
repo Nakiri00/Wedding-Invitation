@@ -1,16 +1,19 @@
 import type { MessageItem } from '../types/wedding'
+import { prewedArt } from './prewedArt'
 
 export const weddingConfig = {
   couple: {
     groom: {
       name: 'Rayhan Konan Ferdion',
       shortName: 'Konan',
-      parents: '',
+      parents:
+        'Putra dari Bapak [Nama Ayah Mempelai Pria] & Ibu [Nama Ibu Mempelai Pria]',
     },
     bride: {
       name: 'Ainy Nilover',
       shortName: 'Nilo',
-      parents: '',
+      parents:
+        'Putri dari Bapak [Nama Ayah Mempelai Wanita] & Ibu [Nama Ibu Mempelai Wanita]',
     },
   },
   dateISO: '2026-11-14T10:00:00+07:00',
@@ -26,32 +29,33 @@ export const weddingConfig = {
      src: `${import.meta.env.BASE_URL}audio/wedding-music.mp3`,
     volume: 0.45,
   },
-  gallery: [
-  {
-    src: `${import.meta.env.BASE_URL}images/gallery/template1.png`,
-    alt: 'Konan dan Nilo dalam sesi prewedding',
-  },
-  {
-    src: `${import.meta.env.BASE_URL}images/gallery/template2.png`,
-    alt: 'Potret kebersamaan Konan dan Nilo',
-  },
-  {
-    src: `${import.meta.env.BASE_URL}images/gallery/template3.png`,
-    alt: 'Momen bahagia Konan dan Nilo',
-  },
-  {
-    src: `${import.meta.env.BASE_URL}images/gallery/template4.png`,
-    alt: 'Foto prewedding Konan dan Nilo',
-  },
-  {
-    src: `${import.meta.env.BASE_URL}images/gallery/template5.png`,
-    alt: 'Kisah cinta Konan dan Nilo',
-  },
-  {
-    src: `${import.meta.env.BASE_URL}images/gallery/template6.png`,
-    alt: 'Perjalanan menuju hari bahagia',
-  },
-  ],
+  gallery: prewedArt.gallery,
+  // gallery: [
+  // {
+  //   src: `${import.meta.env.BASE_URL}images/gallery/template1.png`,
+  //   alt: 'Konan dan Nilo dalam sesi prewedding',
+  // },
+  // {
+  //   src: `${import.meta.env.BASE_URL}images/gallery/template2.png`,
+  //   alt: 'Potret kebersamaan Konan dan Nilo',
+  // },
+  // {
+  //   src: `${import.meta.env.BASE_URL}images/gallery/template3.png`,
+  //   alt: 'Momen bahagia Konan dan Nilo',
+  // },
+  // {
+  //   src: `${import.meta.env.BASE_URL}images/gallery/template4.png`,
+  //   alt: 'Foto prewedding Konan dan Nilo',
+  // },
+  // {
+  //   src: `${import.meta.env.BASE_URL}images/gallery/template5.png`,
+  //   alt: 'Kisah cinta Konan dan Nilo',
+  // },
+  // {
+  //   src: `${import.meta.env.BASE_URL}images/gallery/template6.png`,
+  //   alt: 'Perjalanan menuju hari bahagia',
+  // },
+  // ],
 }
 
 export const initialMessages: MessageItem[] = [
