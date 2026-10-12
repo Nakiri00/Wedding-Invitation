@@ -16,7 +16,7 @@ export const weddingConfig = {
         'Putri dari Bapak [Nama Ayah Mempelai Wanita] & Ibu [Nama Ibu Mempelai Wanita]',
     },
   },
-  dateISO: '2026-11-14T10:00:00+07:00',
+  dateISO: '2026-11-14T16:00:00+07:00',
   dateLabel: 'Sabtu, 14 November 2026',
   dateParts: { day: '14', month: 'NOV', year: '2026' },
   timeLabel: '16:00 - Selesai ',

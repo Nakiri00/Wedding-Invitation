@@ -2,6 +2,7 @@ import { Reveal } from './Reveal'
 import { weddingConfig } from '../data/wedding'
 import { weddingAssets } from '../assets/wedding/weddingAssets'
 import { prewedArt } from '../data/prewedArt'
+import { PrewedImage } from './PrewedImage'
 
 export function OpeningSection() {
   return (
@@ -25,10 +26,11 @@ export function OpeningSection() {
 
         <div className="hero-art">
           <div className="art-frame">
-            <img
+            <PrewedImage
               className="art-scene"
               src={prewedArt.home}
-              alt="Ilustrasi pasangan pengantin di taman bunga"
+              fallbackSrc={prewedArt.fallback.home}
+              alt="Foto atau ilustrasi prewedding pasangan"
               width="600"
               height="800"
               decoding="async"

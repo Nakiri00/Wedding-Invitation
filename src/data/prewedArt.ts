@@ -253,17 +253,17 @@ function illustration(
 
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`
 }
-
+const fallbackArt = {
+  home: illustration(0),
+  story: illustration(1),
+  groom: illustration(3, 'groom'),
+  bride: illustration(2, 'bride'),
+  gallery: Array.from({ length: 6 }, (_, index) => ({
+    src: illustration(index),
+    alt: `Ilustrasi prewedding pasangan, suasana ${index + 1}`,
+  })),
+}
 export const prewedArt = {
-  // home: illustration(0),
-  // story: illustration(1),
-  // groom: illustration(3, 'groom'),
-  // bride: illustration(2, 'bride'),
-
-  // gallery: Array.from({ length: 6 }, (_, index) => ({
-  //   src: illustration(index),
-  //   alt: `Ilustrasi prewedding pasangan pengantin, suasana ${index + 1}`,
-  // })),
   home: asset('home.webp'),
   story: asset('story.webp'),
   groom: asset('groom.webp'),
@@ -271,27 +271,35 @@ export const prewedArt = {
   gallery: [
     {
       src: asset('gallery-01.webp'),
-      alt: 'Konan dan Nilo berpose bersama di balik kain putih',
+      fallbackSrc: fallbackArt.gallery[0].src,
+      alt: 'Foto prewedding pasangan di studio',
     },
     {
       src: asset('gallery-02.webp'),
-      alt: 'Potret Konan dan Nilo duduk bersama di studio',
+      fallbackSrc: fallbackArt.gallery[1].src,
+      alt: 'Potret pasangan dalam sesi prewedding',
     },
     {
       src: asset('gallery-03.webp'),
-      alt: 'Konan dan Nilo duduk di gazebo taman',
+      fallbackSrc: fallbackArt.gallery[2].src,
+      alt: 'Foto pasangan di taman',
     },
     {
       src: asset('gallery-04.webp'),
-      alt: 'Konan dan Nilo dalam sesi prewedding dengan payung renda',
+      fallbackSrc: fallbackArt.gallery[3].src,
+      alt: 'Foto prewedding dengan payung renda',
     },
     {
       src: asset('gallery-05.webp'),
-      alt: 'Sesi prewedding di antara dekorasi bunga pastel',
+      fallbackSrc: fallbackArt.gallery[4].src,
+      alt: 'Foto prewedding dengan dekorasi bunga',
     },
     {
       src: asset('gallery-06.webp'),
-      alt: 'Konan dan Nilo berjalan berpegangan tangan di taman',
+      fallbackSrc: fallbackArt.gallery[5].src,
+      alt: 'Foto pasangan berjalan di taman',
     },
   ],
+
+  fallback: fallbackArt,
 }

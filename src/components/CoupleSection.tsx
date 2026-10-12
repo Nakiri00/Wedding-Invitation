@@ -8,19 +8,21 @@ export function CoupleSection() {
   const { bride, groom } = weddingConfig.couple
 
   const people = [
-    {
-      ...groom,
-      role: 'The Groom',
-      image: prewedArt.groom,
-      alt: 'Ilustrasi mempelai pria',
-    },
-    {
-      ...bride,
-      role: 'The Bride',
-      image: prewedArt.bride,
-      alt: 'Ilustrasi mempelai wanita',
-    },
-  ]
+  {
+    ...groom,
+    role: 'The Groom',
+    image: prewedArt.groom,
+    fallback: prewedArt.fallback.groom,
+    alt: 'Foto atau ilustrasi mempelai pria',
+  },
+  {
+    ...bride,
+    role: 'The Bride',
+    image: prewedArt.bride,
+    fallback: prewedArt.fallback.bride,
+    alt: 'Foto atau ilustrasi mempelai wanita',
+  },
+]
 
   return (
     <section className="section couple-section" id="couple">

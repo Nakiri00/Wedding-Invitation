@@ -2754,3 +2754,59 @@
     min-width: 200px;
   }
 }
+
+
+/* Calendar save action below the event countdown. */
+.wedding-ui .editorial-countdown { margin-bottom: 24px; }
+.wedding-ui .calendar-save-actions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin: 0 auto 58px;
+  text-align: center;
+}
+.wedding-ui .calendar-save-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 50px;
+  padding: 0 28px;
+  border: 1px solid rgba(247, 241, 230, .88);
+  background: #f7f1e6;
+  color: var(--wi-wine);
+  text-decoration: none;
+  font-family: var(--wi-sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  transition: background .2s ease, color .2s ease, transform .2s ease;
+}
+.wedding-ui .calendar-save-button svg {
+  width: 19px; height: 19px; flex: 0 0 auto;
+  stroke: currentColor; stroke-width: 1.6;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.wedding-ui .calendar-save-button:hover {
+  transform: translateY(-2px); background: transparent; color: #f7f1e6;
+}
+.wedding-ui .calendar-save-button:focus-visible,
+.wedding-ui .calendar-download-link:focus-visible {
+  outline: 2px solid #f7f1e6; outline-offset: 4px;
+}
+.wedding-ui .calendar-download-link {
+  padding: 4px 8px; border: 0; background: transparent;
+  color: rgba(255, 255, 255, .82);
+  font: 500 10px/1.5 var(--wi-sans); letter-spacing: .04em;
+  text-decoration: underline; text-underline-offset: 3px; cursor: pointer;
+}
+.wedding-ui .calendar-download-link:hover { color: #fff; }
+@media (max-width: 640px) {
+  .wedding-ui .editorial-countdown { margin-bottom: 22px; }
+  .wedding-ui .calendar-save-actions { margin: 0 auto 40px; gap: 10px; }
+  .wedding-ui .calendar-save-button { min-height: 48px; padding: 0 24px; }
+}

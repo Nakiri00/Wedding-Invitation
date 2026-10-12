@@ -3,6 +3,8 @@ import { weddingConfig } from '../data/wedding'
 import { weddingAssets } from '../assets/wedding/weddingAssets'
 import { useCountdown } from '../hooks/useWedding'
 
+import { downloadCalendarFile, getGoogleCalendarUrl } from '../lib/calendar'
+
 export function EventSection() {
   const countdown = useCountdown(weddingConfig.dateISO)
   const countdownItems = [
@@ -31,6 +33,24 @@ export function EventSection() {
             </div>
           ))}
         </Reveal>
+        <div className="calendar-save-actions">
+          <a
+            className="calendar-save-button"
+            href={getGoogleCalendarUrl()}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+              <rect x="3.5" y="5" width="17" height="16" rx="2" />
+              <path d="M7.5 3v4M16.5 3v4M3.5 9.5h17M12 12.5v5M9.5 15h5" />
+            </svg>
+            <span>Simpan Tanggal</span>
+          </a>
+          <button type="button" className="calendar-download-link" onClick={downloadCalendarFile}>
+            Atau unduh file kalender (.ics)
+          </button>
+        </div>
+
 
         <div className="event-cards">
           <Reveal className="event-card editorial-event-card">
