@@ -38,7 +38,7 @@ jobs:
 
       - name: Build frontend
         env:
-          VITE_API_URL: https://auralis-api.malaysiawest.cloudapp.azure.com/api
+          VITE_API_URL: https://wedding-invitation-api-rf9m.onrender.com/api
         run: npm run build
 
       - name: Configure Pages

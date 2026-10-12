@@ -9,6 +9,7 @@ import { errorHandler } from './middleware/error.js'
 import { authRouter } from './modules/auth/auth.routes.js'
 import { adminRouter } from './modules/admin/admin.routes.js'
 import { attendanceRouter } from './modules/attendance/attendance.routes.js'
+import { previewQrRouter } from './modules/preview/preview.routes.js'
 import { getCookie, CSRF_COOKIE } from './lib/cookies.js'
 import { prisma } from './lib/prisma.js'
 
@@ -51,8 +52,10 @@ app.get('/api/health', async (_request, response) => {
 
 app.use('/api/invitations/:token/rsvp', publicWriteLimiter)
 app.use('/api/invitations/:token/messages', publicWriteLimiter)
+app.use('/api/preview/qr', publicWriteLimiter)
 app.use('/api/auth', authRouter)
 app.use('/api/admin', adminRouter)
 app.use('/api/attendance', attendanceRouter)
+app.use('/api/preview', previewQrRouter)
 app.use('/api/invitations', invitationRouter)
 app.use(errorHandler)

@@ -15,9 +15,10 @@ interface RSVPSectionProps {
   guestName: string
   checkedInAt?: string | null
   onSubmit: (submission: RSVPSubmission) => void
+  previewMode?: boolean
 }
 
-export function RSVPSection({ token, validToken, quota, existingRSVP, guestName, checkedInAt = null, onSubmit }: RSVPSectionProps) {
+export function RSVPSection({ token, validToken, quota, existingRSVP, guestName, checkedInAt = null, onSubmit, previewMode = false }: RSVPSectionProps) {
   const [name, setName] = useState(guestName || '')
   const [attendance, setAttendance] = useState<'attending' | 'not_attending'>('attending')
   const [guests, setGuests] = useState(1)
@@ -26,7 +27,7 @@ export function RSVPSection({ token, validToken, quota, existingRSVP, guestName,
   const [submitting, setSubmitting] = useState(false)
   
 
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setError('')
 
@@ -44,15 +45,39 @@ export function RSVPSection({ token, validToken, quota, existingRSVP, guestName,
     }
 
     setSubmitting(true)
-    weddingApi.submitRSVP(token, {
-      name: name.trim(),
-      attendance,
-      guestCount: attendance === 'attending' ? guests : 0,
-      babyCount: attendance === 'attending' ? babyCount : 0,
-    })
-      .then((result) => onSubmit(result))
-      .catch((reason: unknown) => setError(reason instanceof Error ? reason.message : 'RSVP gagal dikirim.'))
-      .finally(() => setSubmitting(false))
+    try {
+      if (previewMode) {
+        let qrDataUrl: string | null = null
+        if (attendance === 'attending') {
+          const previewPayload = `wedding:preview:${crypto.randomUUID()}`
+          const qr = await weddingApi.createPreviewQr(previewPayload)
+          qrDataUrl = qr.qrDataUrl
+        }
+
+        onSubmit({
+          name: name.trim(),
+          attendance,
+          guests: attendance === 'attending' ? guests : 0,
+          babyCount: attendance === 'attending' ? babyCount : 0,
+          submittedAt: new Date().toISOString(),
+          qrDataUrl,
+          checkInCode: `PREVIEW-${token.slice(0, 6).toUpperCase()}`,
+        })
+        return
+      }
+
+      const result = await weddingApi.submitRSVP(token, {
+        name: name.trim(),
+        attendance,
+        guestCount: attendance === 'attending' ? guests : 0,
+        babyCount: attendance === 'attending' ? babyCount : 0,
+      })
+      onSubmit(result)
+    } catch (reason: unknown) {
+      setError(reason instanceof Error ? reason.message : 'RSVP gagal dikirim.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -144,6 +169,14 @@ export function RSVPSection({ token, validToken, quota, existingRSVP, guestName,
 
             {existingRSVP.attendance === 'attending' && (
               <div className='qr-ticket'>
+                {previewMode && (
+                  <span
+                    role="status"
+                    style={{ display: 'inline-block', marginBottom: '8px', padding: '5px 9px', borderRadius: '999px', background: '#f6ead1', color: '#634b22', fontSize: '10px', fontWeight: 800, letterSpacing: '0.08em' }}
+                  >
+                    QR PREVIEW
+                  </span>
+                )}
                 <QrCodeCard
                    qrDataUrl={existingRSVP.qrDataUrl}
                    guestName={existingRSVP.name}
@@ -167,8 +200,9 @@ export function RSVPSection({ token, validToken, quota, existingRSVP, guestName,
                 </div>
 
                 <small>
-                  Tunjukkan QR code ini kepada staff saat
-                  hari H.
+                  {previewMode
+                    ? 'QR khusus preview — tidak berlaku untuk check-in acara.'
+                    : 'Tunjukkan QR code ini kepada staff saat hari H.'}
                 </small>
               </div>
             )}

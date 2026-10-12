@@ -11,6 +11,7 @@ interface InvitationGateProps {
   loading?: boolean
   error?: string
   onOpen?: () => void
+  previewMode?: boolean
 }
 
 export function InvitationGate({
@@ -20,6 +21,7 @@ export function InvitationGate({
   loading = false,
   error = '',
   onOpen,
+  previewMode = false,
 }: InvitationGateProps) {
   const [isOpen, setIsOpen] = useState(false)
   const coverRef = useRef<HTMLElement>(null);
@@ -110,6 +112,19 @@ export function InvitationGate({
 
           <div className="gate-heading-line" aria-hidden="true" />
           <p className="gate-kicker">The Wedding Of</p>
+          {previewMode && (
+            <p
+              role="status"
+              style={{
+                display: 'inline-block', margin: '8px auto 0', padding: '6px 10px',
+                border: '1px solid rgba(197, 166, 109, 0.8)', borderRadius: '999px',
+                background: 'rgba(248, 244, 234, 0.92)', color: '#31473b',
+                fontSize: '10px', fontWeight: 700, letterSpacing: '0.08em',
+              }}
+            >
+              PREVIEW KLIEN · SIMULASI
+            </p>
+          )}
 
           <h1 className="gate-title">
             <span>{weddingConfig.couple.groom.shortName}</span>

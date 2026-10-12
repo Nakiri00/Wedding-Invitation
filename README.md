@@ -61,6 +61,12 @@ The seed creates the invitation used by the PRD prototype.
 
 Staff/admin authentication and protected QR check-in mutation are the next backend module. The public API intentionally does not expose a check-in mutation.
 
+## Client preview mode
+
+From the admin invitation table, copy **Preview klien** for a dummy invitation and send that URL to the client. The link adds `preview=1`. The preview uses the invitation's name/quota and can demonstrate RSVP, a demo QR, and a new message without writing those interactions to MySQL. Previously published messages are read via the existing read-only messages endpoint. Local preview interactions are retained in that browser tab's session storage; use **Ulangi demo** to reset them. A preview QR uses the `wedding:preview:` payload and is not valid for event check-in.
+
+The invitation record itself is still read from the database, so create a dummy invitation in admin before sharing its preview link. Avoid sharing a real guest's token for client demonstrations.
+
 ## Verification commands
 
 Frontend:

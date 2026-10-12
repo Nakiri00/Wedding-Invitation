@@ -885,7 +885,7 @@
 .wedding-ui .rsvp-quota strong { color: white; }
 .wedding-ui .rsvp-flower { position: absolute; right: -55px; bottom: -60px; width: 280px; opacity: .28; filter: grayscale(.15); }
 
-.wedding-ui .rsvp-form { padding: 58px 64px; display: grid; align-content: center; min-width: 0; }
+.wedding-ui .rsvp-form { padding: 58px 64px; display: grid; align-content: center; min-width: 0; gap: 22px;}
 .wedding-ui .rsvp-form label,
 .wedding-ui .rsvp-form legend,
 .wedding-ui .wish-form label { font-size: 10px; letter-spacing: .13em; text-transform: uppercase; font-weight: 600; color: #60584f; }

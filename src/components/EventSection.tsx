@@ -69,7 +69,7 @@ export function EventSection() {
           <Reveal className="event-card editorial-event-card event-card--accent">
             <div className="event-number">02</div>
             <p className="eyebrow">Resepsi</p>
-            <h3>Setelah akad</h3>
+            <h3>19:00 - 21:00 WIB</h3>
             <div className="event-rule" />
             <p>
               <strong>{weddingConfig.venue}</strong><br />

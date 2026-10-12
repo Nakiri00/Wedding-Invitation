@@ -139,6 +139,7 @@ export const weddingApi = {
     }
   },
   getMessages: (token: string) => request<import('../types/wedding').MessageItem[]>(`/invitations/${encodeURIComponent(token)}/messages`),
+  createPreviewQr: (payload: string) => request<{ qrDataUrl: string }>(`/preview/qr?payload=${encodeURIComponent(payload)}`),
   createMessage: (token: string, payload: { name: string; message: string }) =>
     request<import('../types/wedding').MessageItem>(`/invitations/${encodeURIComponent(token)}/messages`, { method: 'POST', body: JSON.stringify(payload) }),
 }

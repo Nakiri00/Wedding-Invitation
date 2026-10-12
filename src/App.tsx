@@ -20,6 +20,7 @@ import { weddingConfig } from './data/wedding'
 import { useScrollSpy } from './hooks/useScrollSpy'
 import { useContainerAssetsReady } from './hooks/useContainerAssetsReady';
 import './WeddingInvitation.css'
+import { loadPreviewSession, savePreviewSession, type PreviewSession } from './lib/previewSession'
 
 const ConsoleApp = lazy(() => import('./ConsoleApp').then((module) => ({ default: module.ConsoleApp })))
 
@@ -97,6 +98,18 @@ function WeddingInvitationApp() {
     () => new URLSearchParams(window.location.search).get('invite')?.trim() ?? '',
     [],
   )
+  const previewMode = useMemo(
+    () => new URLSearchParams(window.location.search).get('preview') === '1',
+    [],
+  )
+  const [previewSession, setPreviewSession] = useState<PreviewSession | null>(
+    () => previewMode && invitationToken ? loadPreviewSession(invitationToken) : null,
+  )
+
+  useEffect(() => {
+    if (!previewMode || !invitationToken || !previewSession) return
+    savePreviewSession(invitationToken, previewSession)
+  }, [invitationToken, previewMode, previewSession])
   const sectionAssetsRef = useRef<HTMLElement>(null);
 
   const sectionAssetsReady = useContainerAssetsReady(
@@ -134,20 +147,30 @@ function WeddingInvitationApp() {
     invitationToken,
     invitationValid,
   ]);
-  const existingRsvp = rsvp ?? (invitation?.rsvp ? {
-    name: invitation.rsvp.name,
-    attendance: invitation.rsvp.attendance,
-    guests: invitation.rsvp.guestCount,
-    babyCount: invitation.rsvp.babyCount,
-    submittedAt: invitation.rsvp.submittedAt,
-    qrDataUrl: invitation.rsvp.qrDataUrl,
-  } : null)
+  const existingRsvp = previewMode
+    ? previewSession?.rsvp ?? null
+    : rsvp ?? (invitation?.rsvp ? {
+        name: invitation.rsvp.name,
+        attendance: invitation.rsvp.attendance,
+        guests: invitation.rsvp.guestCount,
+        babyCount: invitation.rsvp.babyCount,
+        submittedAt: invitation.rsvp.submittedAt,
+        qrDataUrl: invitation.rsvp.qrDataUrl,
+      } : null)
   const [messages, setMessages] = useState<MessageItem[]>([])
   const checkInStatus = useCheckInStatus(
     invitationToken,
-    invitationValid &&
+    !previewMode && invitationValid &&
     existingRsvp?.attendance === 'attending',
   )
+
+  const displayedMessages = useMemo(() => {
+    if (!previewMode) return messages
+    const localMessages = previewSession?.messages ?? []
+    const localIds = new Set(localMessages.map((item) => item.id))
+    return [...localMessages, ...messages.filter((item) => !localIds.has(item.id))]
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  }, [messages, previewMode, previewSession?.messages])
 
   useEffect(() => {
     if (!invitationValid) return
@@ -183,8 +206,20 @@ function WeddingInvitationApp() {
   }
 
   const handleRSVP = (submission: RSVPSubmission) => {
-    setRsvp(submission)
+    if (previewMode) {
+      setPreviewSession((current) => ({
+        rsvp: submission,
+        messages: current?.messages ?? [],
+        hasSubmittedMessage: current?.hasSubmittedMessage ?? false,
+      }))
+    } else {
+      setRsvp(submission)
+    }
     document.getElementById('rsvp-result')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }
+
+  const resetPreview = () => {
+    setPreviewSession({ rsvp: null, messages: [], hasSubmittedMessage: false })
   }
 
   const scrollTo = (id: string) => {
@@ -237,11 +272,36 @@ function WeddingInvitationApp() {
 
       <InvitationGate
         guestName={invitation?.guestName ?? 'Tamu Undangan'}
+        previewMode={previewMode}
         valid={invitationValid}
         loading={invitationLoading}
         error={invitationError}
         onOpen={startInvitationMusic}
       >
+        {previewMode && invitationOpened && (
+          <div
+            role="status"
+            style={{
+              position: 'fixed', top: '12px', left: '50%', transform: 'translateX(-50%)',
+              zIndex: 10000, width: 'max-content', maxWidth: 'calc(100vw - 24px)',
+              boxSizing: 'border-box', padding: '10px 14px',
+              border: '1px solid #c5a66d', borderRadius: '999px',
+              background: 'rgba(248, 244, 234, 0.97)', color: '#31473b',
+              boxShadow: '0 6px 24px rgba(26, 54, 47, 0.12)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+              textAlign: 'center', fontSize: '11px', fontWeight: 700,
+            }}
+          >
+            <span>MODE PREVIEW · Data simulasi tidak disimpan ke database</span>
+            <button
+              type="button"
+              onClick={resetPreview}
+              style={{ border: '1px solid #9a875e', borderRadius: '999px', background: 'transparent', color: 'inherit', padding: '4px 8px', cursor: 'pointer', whiteSpace: 'nowrap', fontSize: '10px' }}
+            >
+              Ulangi demo
+            </button>
+          </div>
+        )}
         <ScrollProgress />
         <FallingPetals mode="global" />
 
@@ -275,6 +335,7 @@ function WeddingInvitationApp() {
           <StorySection />
           <RSVPSection
             key={invitation?.guestName ?? 'unknown-guest'}
+            previewMode={previewMode}
             token={invitationToken}
             validToken={invitationValid}
             quota={invitation?.quota ?? 0}
@@ -288,10 +349,21 @@ function WeddingInvitationApp() {
           <MessageSection
             token={invitationToken}
             guestName={invitation?.guestName ?? ''}
-            initialMessages={messages}
+            initialMessages={displayedMessages}
             enabled={invitationValid}
-            hasSubmittedInitially={invitation?.hasMessage ?? false}
-            onMessageCreated={(message) => setMessages((current) => [message, ...current])}
+            previewMode={previewMode}
+            hasSubmittedInitially={previewMode ? previewSession?.hasSubmittedMessage ?? false : invitation?.hasMessage ?? false}
+            onMessageCreated={(message) => {
+              if (previewMode) {
+                setPreviewSession((current) => ({
+                  rsvp: current?.rsvp ?? null,
+                  messages: [message, ...(current?.messages ?? []).filter((item) => item.id !== message.id)],
+                  hasSubmittedMessage: true,
+                }))
+              } else {
+                setMessages((current) => [message, ...current])
+              }
+            }}
           />
           <GallerySection />
         </main>

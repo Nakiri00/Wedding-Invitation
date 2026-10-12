@@ -13,9 +13,10 @@ interface MessageSectionProps {
   enabled: boolean
   hasSubmittedInitially: boolean
   onMessageCreated: (message: MessageItem) => void
+  previewMode?: boolean
 }
 
-export function MessageSection({ token, guestName, initialMessages: serverMessages, enabled, hasSubmittedInitially, onMessageCreated }: MessageSectionProps) {
+export function MessageSection({ token, guestName, initialMessages: serverMessages, enabled, hasSubmittedInitially, onMessageCreated, previewMode = false }: MessageSectionProps) {
   const [message, setMessage] = useState('')
   const [name, setName] = useState('')
   const [status, setStatus] = useState('')
@@ -66,10 +67,18 @@ export function MessageSection({ token, guestName, initialMessages: serverMessag
     setStatus('')
 
     try {
-      const created = await weddingApi.createMessage(token, {
-        name: senderName,
-        message: trimmedMessage,
-      })
+      const created: MessageItem = previewMode
+        ? {
+            id: `preview-${crypto.randomUUID()}`,
+            name: senderName,
+            message: trimmedMessage,
+            status: 'published',
+            createdAt: new Date().toISOString(),
+          }
+        : await weddingApi.createMessage(token, {
+            name: senderName,
+            message: trimmedMessage,
+          })
 
       onMessageCreated(created)
       setPage(1)

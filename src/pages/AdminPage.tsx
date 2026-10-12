@@ -211,6 +211,7 @@ export function AdminPage({ session, onLogout }: Props) {
                     <td>
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
                         <CopyLinkButton token={i.token} onError={setNotice} />
+                        <CopyLinkButton token={i.token} preview onError={setNotice} />
                         <small>{i.token}</small>
                       </div>
                     </td>
@@ -258,9 +259,11 @@ export function AdminPage({ session, onLogout }: Props) {
 function CopyLinkButton({
   token,
   onError,
+  preview = false,
 }: {
   token: string;
   onError: (msg: string) => void;
+  preview?: boolean;
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -271,6 +274,7 @@ function CopyLinkButton({
     );
 
     invitationUrl.searchParams.set('invite', token);
+    if (preview) invitationUrl.searchParams.set('preview', '1');
 
     const url = invitationUrl.toString();
 
@@ -295,7 +299,8 @@ function CopyLinkButton({
     <button 
       type="button" 
       onClick={handleCopy} 
-      title="Salin Link"
+      title={preview ? 'Salin Link Preview Klien' : 'Salin Link Undangan'}
+      aria-label={preview ? 'Salin link preview klien' : 'Salin link undangan'}
       style={{ 
         background: 'none', border: 'none', cursor: 'pointer', padding: 0, 
         color: copied ? '#10b981' : '#1a362f',  
@@ -309,11 +314,12 @@ function CopyLinkButton({
           <span style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>Tersalin!</span>
         </div>
       ) : (
-        <div key="idle-state" className="icon-feedback" style={{ display: 'flex', alignItems: 'center' }}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <div key="idle-state" className="icon-feedback" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
             <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
           </svg>
+          {preview && <span style={{ fontSize: '0.72rem', whiteSpace: 'nowrap' }}>Preview klien</span>}
         </div>
       )}
     </button>
