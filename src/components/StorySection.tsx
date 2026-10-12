@@ -1,5 +1,5 @@
 import { Reveal } from './Reveal'
-import { weddingAssets } from '../assets/wedding/weddingAssets'
+import { prewedArt } from '../data/prewedArt'
 
 const chapters = [
   {
@@ -23,11 +23,17 @@ export function StorySection() {
   return (
     <section className="section love-story-section" id="story">
       <Reveal className="container story-grid">
-        <div className="story-art" aria-hidden="true">
-          <img className="story-art-image" src={weddingAssets.environment.background} alt="" />
-          <div className="story-art-shade" />
-          <img className="story-corner" src={weddingAssets.environment.pondCornerLeft} alt="" />
-        </div>
+       <div className="story-art">
+        <img
+          className="story-art-image"
+          src={prewedArt.story}
+          alt="Ilustrasi prewedding pasangan di taman"
+          width="600"
+          height="800"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
 
         <div className="story-copy">
           <p className="eyebrow">Our Story</p>

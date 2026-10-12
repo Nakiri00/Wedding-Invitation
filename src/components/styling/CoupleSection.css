@@ -1,0 +1,84 @@
+.wedding-ui .couple-portraits {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(24px, 5vw, 72px);
+  width: min(100%, 920px);
+  margin-inline: auto;
+}
+
+.wedding-ui .couple-profile {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--wi-line, #dfcfc6);
+  border-radius: 220px 220px 12px 12px;
+  background: #fffdf8;
+  box-shadow: 0 20px 50px #493b3010;
+  text-align: center;
+}
+
+.wedding-ui .couple-profile__portrait {
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+  border-radius: 200px 200px 8px 8px;
+  background: #eee8dd;
+}
+
+.wedding-ui .couple-profile__portrait img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.wedding-ui .couple-profile__details {
+  padding: 30px 14px 20px;
+}
+
+.wedding-ui .couple-profile__role {
+  margin: 0 0 16px;
+  color: var(--wi-sage, #667b62);
+  font: 500 11px/1.5 var(--wi-sans, sans-serif);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.wedding-ui .couple-profile h3 {
+  margin: 0;
+  color: var(--wi-wine, #7b3337);
+  font:
+    500 clamp(34px, 3.6vw, 48px)/1.08
+    var(--wi-serif, Georgia, serif);
+  overflow-wrap: anywhere;
+}
+
+.wedding-ui .couple-profile__ornament {
+  display: block;
+  margin: 20px 0;
+  color: #b99775;
+  font-size: 15px;
+}
+
+.wedding-ui .couple-profile__parents {
+  max-width: 320px;
+  margin: 0 auto;
+  color: #75685d;
+  font: 400 17px/1.7 var(--wi-serif, Georgia, serif);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+  .wedding-ui .couple-portraits {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+    gap: 32px;
+  }
+
+  .wedding-ui .couple-profile {
+    padding: 14px;
+  }
+
+  .wedding-ui .couple-profile__details {
+    padding: 26px 8px 18px;
+  }
+}

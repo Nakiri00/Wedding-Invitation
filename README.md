@@ -1,4 +1,4 @@
-# Lotus & Willow Wedding Invitation
+# Konan & Nilo Wedding Invitation
 
 React + TypeScript + Vite frontend and Node.js + Express + Prisma + MySQL backend based on PRD v3.
 
