@@ -1,4 +1,6 @@
 // Ilustrasi sementara. Nantinya src dapat diganti dengan foto asli.
+const asset = (filename: string) =>
+  `${import.meta.env.BASE_URL}images/prewed/${filename}`
 const flower = (x: number, y: number, size = 1) => `
   <g transform="translate(${x} ${y}) scale(${size})">
     <g fill="#e7b8b5">
@@ -253,13 +255,43 @@ function illustration(
 }
 
 export const prewedArt = {
-  home: illustration(0),
-  story: illustration(1),
-  groom: illustration(3, 'groom'),
-  bride: illustration(2, 'bride'),
+  // home: illustration(0),
+  // story: illustration(1),
+  // groom: illustration(3, 'groom'),
+  // bride: illustration(2, 'bride'),
 
-  gallery: Array.from({ length: 6 }, (_, index) => ({
-    src: illustration(index),
-    alt: `Ilustrasi prewedding pasangan pengantin, suasana ${index + 1}`,
-  })),
+  // gallery: Array.from({ length: 6 }, (_, index) => ({
+  //   src: illustration(index),
+  //   alt: `Ilustrasi prewedding pasangan pengantin, suasana ${index + 1}`,
+  // })),
+  home: asset('home.webp'),
+  story: asset('story.webp'),
+  groom: asset('groom.webp'),
+  bride: asset('bride.webp'),
+  gallery: [
+    {
+      src: asset('gallery-01.webp'),
+      alt: 'Konan dan Nilo berpose bersama di balik kain putih',
+    },
+    {
+      src: asset('gallery-02.webp'),
+      alt: 'Potret Konan dan Nilo duduk bersama di studio',
+    },
+    {
+      src: asset('gallery-03.webp'),
+      alt: 'Konan dan Nilo duduk di gazebo taman',
+    },
+    {
+      src: asset('gallery-04.webp'),
+      alt: 'Konan dan Nilo dalam sesi prewedding dengan payung renda',
+    },
+    {
+      src: asset('gallery-05.webp'),
+      alt: 'Sesi prewedding di antara dekorasi bunga pastel',
+    },
+    {
+      src: asset('gallery-06.webp'),
+      alt: 'Konan dan Nilo berjalan berpegangan tangan di taman',
+    },
+  ],
 }

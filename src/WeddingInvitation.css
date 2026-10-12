@@ -885,7 +885,7 @@
 .wedding-ui .rsvp-quota strong { color: white; }
 .wedding-ui .rsvp-flower { position: absolute; right: -55px; bottom: -60px; width: 280px; opacity: .28; filter: grayscale(.15); }
 
-.wedding-ui .rsvp-form { padding: 58px 64px; display: grid; align-content: center; gap: 22px; min-width: 0; }
+.wedding-ui .rsvp-form { padding: 58px 64px; display: grid; align-content: center; min-width: 0; }
 .wedding-ui .rsvp-form label,
 .wedding-ui .rsvp-form legend,
 .wedding-ui .wish-form label { font-size: 10px; letter-spacing: .13em; text-transform: uppercase; font-weight: 600; color: #60584f; }
@@ -1703,7 +1703,7 @@
 }
 
 .wedding-ui .editorial-event-card > p:not(.eyebrow) {
-  min-height: 86px;
+  /* min-height: 86px; */
   margin: 0;
 }
 
@@ -1713,6 +1713,7 @@
 
 .wedding-ui .outline-btn {
   margin-top: 26px;
+  margin-bottom: 10px;
 }
 
 /* Story / RSVP: stable width and spacing, no cross-section bleed. */

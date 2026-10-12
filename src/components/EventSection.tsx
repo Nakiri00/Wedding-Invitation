@@ -43,6 +43,7 @@ export function EventSection() {
               {weddingConfig.address}
             </p>
             <a className="outline-btn" href={weddingConfig.mapUrl} target="_blank" rel="noreferrer">Lihat Lokasi</a>
+            <p>*Hanya Dihadiri Keluarga</p>
           </Reveal>
 
           <Reveal className="event-card editorial-event-card event-card--accent">

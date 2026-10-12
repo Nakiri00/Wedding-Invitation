@@ -1,0 +1,32 @@
+.qr-code-card {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  margin: 14px auto 12px;
+}
+
+.qr-code-card__image {
+  display: block;
+  width: min(100%, 280px);
+  height: auto;
+  aspect-ratio: 1;
+  padding: 10px;
+  object-fit: contain;
+  background: #fff;
+  border: 1px solid #e9d8ce;
+  border-radius: 12px;
+  image-rendering: pixelated;
+}
+
+.qr-code-card__unavailable {
+  max-width: 280px;
+  margin: 14px auto;
+  padding: 14px;
+  color: #7b3337;
+  background: #fff;
+  border: 1px solid #e9d8ce;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  text-align: center;
+}
