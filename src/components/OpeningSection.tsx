@@ -1,6 +1,7 @@
 import { Reveal } from './Reveal'
 import { weddingConfig } from '../data/wedding'
 import { weddingAssets } from '../assets/wedding/weddingAssets'
+import { prewedArt } from '../data/prewedArt'
 
 export function OpeningSection() {
   return (
@@ -22,11 +23,16 @@ export function OpeningSection() {
           </div>
         </div>
 
-        <div className="hero-art" aria-hidden="true">
+        <div className="hero-art">
           <div className="art-frame">
-            <img className="art-scene" src={weddingAssets.environment.background} alt="" />
-            <div className="art-scene-veil" />
-            <img className="art-swan" src={weddingAssets.animals.swan} alt="" />
+            <img
+              className="art-scene"
+              src={prewedArt.home}
+              alt="Ilustrasi pasangan pengantin di taman bunga"
+              width="600"
+              height="800"
+              decoding="async"
+            />
           </div>
         </div>
       </Reveal>
