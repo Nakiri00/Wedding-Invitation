@@ -215,77 +215,327 @@
   }
 }
 
-/* Section skeleton */
-
-.invitation-main .section > * {
+/* Section-aware skeletons --------------------------------------------------- */
+/* Keep content hidden until images/fonts settle, but mirror each section's layout. */
+.invitation-main .section > *,
+.invitation-main .quote-section > * {
   transition: opacity 0.45s ease;
 }
 
-.invitation-main.assets-loading .section {
+.invitation-main.assets-loading .section,
+.invitation-main.assets-loading .quote-section {
   position: relative;
   overflow: hidden;
   isolation: isolate;
 }
 
-.invitation-main.assets-loading .section > * {
+.invitation-main.assets-loading .section > *,
+.invitation-main.assets-loading .quote-section > * {
   opacity: 0;
   pointer-events: none;
 }
 
-.invitation-main.assets-loading .section::before {
+.invitation-main.assets-loading .section::before,
+.invitation-main.assets-loading .quote-section::before {
   content: "";
   position: absolute;
   inset: clamp(18px, 5vw, 52px);
   z-index: 90;
-
-  background:
-    linear-gradient(#dddcd4 0 0)
-      center 8% / 25% 13px no-repeat,
-    linear-gradient(#d4d7d0 0 0)
-      center 15% / 58% 40px no-repeat,
-    linear-gradient(#e1e0d9 0 0)
-      center 23% / 72% 12px no-repeat,
-    linear-gradient(#e1e0d9 0 0)
-      center 27% / 62% 12px no-repeat,
-    linear-gradient(#d6d9d2 0 0)
-      left 10% bottom 14% / 38% 48% no-repeat,
-    linear-gradient(#d6d9d2 0 0)
-      right 10% bottom 14% / 38% 48% no-repeat,
-    rgba(249, 247, 241, 0.94);
-
   border: 1px solid rgba(41, 77, 65, 0.08);
   border-radius: 22px;
+  background: rgba(249, 247, 241, 0.94);
   box-shadow: 0 12px 35px rgba(38, 65, 55, 0.08);
 }
 
-.invitation-main.assets-loading .section::after {
+/* Opening: editorial copy on the left and a tall portrait on the right. */
+.invitation-main.assets-loading #home::before {
+  background:
+    linear-gradient(#deded5 0 0) 12% 13% / 18% 10px no-repeat,
+    linear-gradient(#d4d7d0 0 0) 12% 25% / 37% 30px no-repeat,
+    linear-gradient(#d8dbd4 0 0) 12% 32% / 32% 22px no-repeat,
+    linear-gradient(#e1e0d9 0 0) 12% 43% / 38% 10px no-repeat,
+    linear-gradient(#e1e0d9 0 0) 12% 47% / 33% 10px no-repeat,
+    linear-gradient(#e1e0d9 0 0) 12% 51% / 29% 10px no-repeat,
+    linear-gradient(#d5d8d1 0 0) 82% 51% / 36% 78% no-repeat,
+    rgba(249, 247, 241, 0.96);
+}
+
+/* Quote: a single calm, centred card. */
+.invitation-main.assets-loading .quote-section::before {
+  inset: clamp(20px, 8vw, 90px);
+  background:
+    linear-gradient(#d4d7d0 0 0) center 24% / 42px 34px no-repeat,
+    linear-gradient(#d5d8d1 0 0) center 43% / 72% 13px no-repeat,
+    linear-gradient(#d5d8d1 0 0) center 51% / 78% 13px no-repeat,
+    linear-gradient(#d5d8d1 0 0) center 59% / 68% 13px no-repeat,
+    linear-gradient(#e1e0d9 0 0) center 75% / 20% 10px no-repeat,
+    rgba(249, 247, 241, 0.92);
+}
+
+/* Couple: centred heading followed by two matching portrait profiles. */
+.invitation-main.assets-loading #couple::before {
+  background:
+    linear-gradient(#deded5 0 0) center 8% / 19% 10px no-repeat,
+    linear-gradient(#d4d7d0 0 0) center 15% / 34% 27px no-repeat,
+    linear-gradient(#e1e0d9 0 0) center 21% / 45% 10px no-repeat,
+    linear-gradient(#e1e0d9 0 0) center 25% / 35% 10px no-repeat,
+    linear-gradient(#d5d8d1 0 0) 28% 54% / 27% 37% no-repeat,
+    linear-gradient(#deded5 0 0) 28% 77% / 18% 9px no-repeat,
+    linear-gradient(#d4d7d0 0 0) 28% 83% / 24% 17px no-repeat,
+    linear-gradient(#e1e0d9 0 0) 28% 89% / 25% 9px no-repeat,
+    linear-gradient(#d5d8d1 0 0) 72% 54% / 27% 37% no-repeat,
+    linear-gradient(#deded5 0 0) 72% 77% / 18% 9px no-repeat,
+    linear-gradient(#d4d7d0 0 0) 72% 83% / 24% 17px no-repeat,
+    linear-gradient(#e1e0d9 0 0) 72% 89% / 25% 9px no-repeat,
+    rgba(249, 247, 241, 0.96);
+}
+
+/* Event: title, four countdown tiles, details and a calendar action. */
+.invitation-main.assets-loading #event::before {
+  background:
+    linear-gradient(#deded5 0 0) center 10% / 22% 10px no-repeat,
+    linear-gradient(#d4d7d0 0 0) center 18% / 42% 28px no-repeat,
+    linear-gradient(#e1e0d9 0 0) center 24% / 38% 10px no-repeat,
+    linear-gradient(#d5d8d1 0 0) 27% 42% / 12% 17% no-repeat,
+    linear-gradient(#d5d8d1 0 0) 42% 42% / 12% 17% no-repeat,
+    linear-gradient(#d5d8d1 0 0) 57% 42% / 12% 17% no-repeat,
+    linear-gradient(#d5d8d1 0 0) 72% 42% / 12% 17% no-repeat,
+    linear-gradient(#deded5 0 0) center 67% / 24% 14px no-repeat,
+    linear-gradient(#e1e0d9 0 0) center 73% / 44% 10px no-repeat,
+    linear-gradient(#e1e0d9 0 0) center 77% / 33% 10px no-repeat,
+    linear-gradient(#d4d7d0 0 0) center 87% / 20% 30px no-repeat,
+    rgba(249, 247, 241, 0.96);
+}
+
+/* Story: tall artwork at the left and timeline items at the right. */
+.invitation-main.assets-loading #story::before {
+  background:
+    linear-gradient(#d5d8d1 0 0) 28% 50% / 38% 78% no-repeat,
+    linear-gradient(#deded5 0 0) 76% 17% / 19% 10px no-repeat,
+    linear-gradient(#d4d7d0 0 0) 76% 26% / 40% 30px no-repeat,
+    linear-gradient(#d8dbd4 0 0) 76% 33% / 35% 20px no-repeat,
+    linear-gradient(#e1e0d9 0 0) 76% 42% / 39% 10px no-repeat,
+    linear-gradient(#e1e0d9 0 0) 76% 46% / 34% 10px no-repeat,
+    linear-gradient(#deded5 0 0) 65% 58% / 8% 10px no-repeat,
+    linear-gradient(#d4d7d0 0 0) 79% 58% / 30% 16px no-repeat,
+    linear-gradient(#e1e0d9 0 0) 79% 64% / 30% 10px no-repeat,
+    linear-gradient(#deded5 0 0) 65% 76% / 8% 10px no-repeat,
+    linear-gradient(#d4d7d0 0 0) 79% 76% / 28% 16px no-repeat,
+    linear-gradient(#e1e0d9 0 0) 79% 82% / 29% 10px no-repeat,
+    rgba(249, 247, 241, 0.96);
+}
+
+/* RSVP: contrasting copy panel beside fields and controls. */
+.invitation-main.assets-loading #rsvp::before {
+  background:
+    linear-gradient(#d3d6ce 0 0) 25% 16% / 25% 10px no-repeat,
+    linear-gradient(#d4d7d0 0 0) 25% 27% / 38% 32px no-repeat,
+    linear-gradient(#d8dbd4 0 0) 25% 34% / 33% 21px no-repeat,
+    linear-gradient(#e1e0d9 0 0) 25% 43% / 38% 10px no-repeat,
+    linear-gradient(#e1e0d9 0 0) 25% 47% / 32% 10px no-repeat,
+    linear-gradient(#d5d8d1 0 0) 25% 61% / 24% 22px no-repeat,
+    linear-gradient(#deded5 0 0) 73% 15% / 28% 10px no-repeat,
+    linear-gradient(#d5d8d1 0 0) 73% 30% / 38% 6px no-repeat,
+    linear-gradient(#e1e0d9 0 0) 73% 34% / 38% 10px no-repeat,
+    linear-gradient(#d5d8d1 0 0) 73% 49% / 38% 6px no-repeat,
+    linear-gradient(#e1e0d9 0 0) 73% 53% / 38% 10px no-repeat,
+    linear-gradient(#d5d8d1 0 0) 73% 66% / 38% 6px no-repeat,
+    linear-gradient(#e1e0d9 0 0) 73% 70% / 38% 10px no-repeat,
+    linear-gradient(#d4d7d0 0 0) 73% 83% / 23% 28px no-repeat,
+    rgba(249, 247, 241, 0.96);
+}
+
+/* Messages: submission panel above three guest message cards. */
+.invitation-main.assets-loading #messages::before {
+  background:
+    linear-gradient(#deded5 0 0) center 8% / 20% 10px no-repeat,
+    linear-gradient(#d4d7d0 0 0) center 15% / 38% 27px no-repeat,
+    linear-gradient(#e1e0d9 0 0) center 21% / 44% 10px no-repeat,
+    linear-gradient(#d5d8d1 0 0) 24% 43% / 31% 29% no-repeat,
+    linear-gradient(#e1e0d9 0 0) 24% 38% / 18% 10px no-repeat,
+    linear-gradient(#deded5 0 0) 24% 46% / 23% 16px no-repeat,
+    linear-gradient(#e1e0d9 0 0) 24% 52% / 23% 10px no-repeat,
+    linear-gradient(#d5d8d1 0 0) 72% 43% / 49% 29% no-repeat,
+    linear-gradient(#deded5 0 0) 72% 37% / 18% 10px no-repeat,
+    linear-gradient(#e1e0d9 0 0) 72% 48% / 42% 5px no-repeat,
+    linear-gradient(#e1e0d9 0 0) 72% 55% / 42% 5px no-repeat,
+    linear-gradient(#d4d7d0 0 0) 18% 83% / 27% 19% no-repeat,
+    linear-gradient(#d4d7d0 0 0) center 83% / 27% 19% no-repeat,
+    linear-gradient(#d4d7d0 0 0) 82% 83% / 27% 19% no-repeat,
+    rgba(249, 247, 241, 0.96);
+}
+
+/* Gallery: large feature image, two side images and a final row of cards. */
+.invitation-main.assets-loading #gallery::before {
+  background:
+    linear-gradient(#deded5 0 0) center 9% / 19% 10px no-repeat,
+    linear-gradient(#d4d7d0 0 0) center 16% / 38% 27px no-repeat,
+    linear-gradient(#e1e0d9 0 0) center 22% / 45% 10px no-repeat,
+    linear-gradient(#d5d8d1 0 0) 29% 57% / 55% 53% no-repeat,
+    linear-gradient(#d5d8d1 0 0) 82% 37% / 30% 25% no-repeat,
+    linear-gradient(#d5d8d1 0 0) 82% 68% / 30% 25% no-repeat,
+    linear-gradient(#d5d8d1 0 0) 17% 96% / 28% 19% no-repeat,
+    linear-gradient(#d5d8d1 0 0) center 96% / 28% 19% no-repeat,
+    linear-gradient(#d5d8d1 0 0) 83% 96% / 28% 19% no-repeat,
+    rgba(249, 247, 241, 0.96);
+}
+
+/* Footer lives outside the main element, so the root mirrors its loading state. */
+.wedding-ui:has(.invitation-main.assets-loading) .closing-section {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.wedding-ui:has(.invitation-main.assets-loading) .closing-section > * {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.wedding-ui:has(.invitation-main.assets-loading) .closing-section::before {
+  content: "";
+  position: absolute;
+  inset: clamp(18px, 5vw, 52px);
+  z-index: 90;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 22px;
+  background:
+    linear-gradient(#d4d7d0 0 0) center 24% / 18% 10px no-repeat,
+    linear-gradient(#d4d7d0 0 0) center 39% / 30% 34px no-repeat,
+    linear-gradient(#e1e0d9 0 0) center 54% / 55% 10px no-repeat,
+    linear-gradient(#e1e0d9 0 0) center 59% / 42% 10px no-repeat,
+    linear-gradient(#d4d7d0 0 0) center 72% / 18% 2px no-repeat,
+    linear-gradient(#deded5 0 0) center 82% / 24% 10px no-repeat,
+    rgba(249, 247, 241, 0.94);
+}
+
+/* Shared shimmer. */
+.invitation-main.assets-loading .section::after,
+.invitation-main.assets-loading .quote-section::after,
+.wedding-ui:has(.invitation-main.assets-loading) .closing-section::after {
   content: "";
   position: absolute;
   inset: 0;
   z-index: 91;
-
   background: linear-gradient(
     105deg,
     transparent 35%,
     rgba(255, 255, 255, 0.75) 48%,
     transparent 62%
   );
-
   transform: translateX(-100%);
-  animation: wedding-skeleton-shimmer 1.5s
-    ease-in-out infinite;
+  animation: wedding-skeleton-shimmer 1.5s ease-in-out infinite;
 }
 
 @keyframes wedding-skeleton-shimmer {
-  to {
-    transform: translateX(100%);
+  to { transform: translateX(100%); }
+}
+
+/* On narrow screens, switch multi-column placeholders to stacked layouts. */
+@media (max-width: 720px) {
+  .invitation-main.assets-loading #home::before {
+    background:
+      linear-gradient(#deded5 0 0) center 8% / 28% 9px no-repeat,
+      linear-gradient(#d4d7d0 0 0) center 18% / 65% 25px no-repeat,
+      linear-gradient(#d8dbd4 0 0) center 24% / 56% 18px no-repeat,
+      linear-gradient(#e1e0d9 0 0) center 31% / 72% 9px no-repeat,
+      linear-gradient(#e1e0d9 0 0) center 35% / 62% 9px no-repeat,
+      linear-gradient(#d5d8d1 0 0) center 71% / 68% 43% no-repeat,
+      rgba(249, 247, 241, 0.96);
+  }
+
+  .invitation-main.assets-loading #couple::before {
+    background:
+      linear-gradient(#deded5 0 0) center 6% / 28% 9px no-repeat,
+      linear-gradient(#d4d7d0 0 0) center 12% / 60% 22px no-repeat,
+      linear-gradient(#e1e0d9 0 0) center 17% / 68% 9px no-repeat,
+      linear-gradient(#d5d8d1 0 0) center 36% / 68% 24% no-repeat,
+      linear-gradient(#deded5 0 0) center 51% / 26% 8px no-repeat,
+      linear-gradient(#d4d7d0 0 0) center 57% / 54% 15px no-repeat,
+      linear-gradient(#e1e0d9 0 0) center 62% / 60% 8px no-repeat,
+      linear-gradient(#d5d8d1 0 0) center 78% / 68% 22% no-repeat,
+      linear-gradient(#deded5 0 0) center 91% / 26% 8px no-repeat,
+      rgba(249, 247, 241, 0.96);
+  }
+
+  .invitation-main.assets-loading #event::before {
+    background:
+      linear-gradient(#deded5 0 0) center 8% / 28% 9px no-repeat,
+      linear-gradient(#d4d7d0 0 0) center 15% / 72% 22px no-repeat,
+      linear-gradient(#e1e0d9 0 0) center 20% / 68% 9px no-repeat,
+      linear-gradient(#d5d8d1 0 0) 16% 38% / 19% 14% no-repeat,
+      linear-gradient(#d5d8d1 0 0) 39% 38% / 19% 14% no-repeat,
+      linear-gradient(#d5d8d1 0 0) 62% 38% / 19% 14% no-repeat,
+      linear-gradient(#d5d8d1 0 0) 85% 38% / 19% 14% no-repeat,
+      linear-gradient(#deded5 0 0) center 64% / 36% 12px no-repeat,
+      linear-gradient(#e1e0d9 0 0) center 71% / 76% 9px no-repeat,
+      linear-gradient(#d4d7d0 0 0) center 83% / 42% 25px no-repeat,
+      rgba(249, 247, 241, 0.96);
+  }
+
+  .invitation-main.assets-loading #story::before {
+    background:
+      linear-gradient(#d5d8d1 0 0) center 31% / 70% 31% no-repeat,
+      linear-gradient(#deded5 0 0) center 51% / 25% 9px no-repeat,
+      linear-gradient(#d4d7d0 0 0) center 59% / 72% 23px no-repeat,
+      linear-gradient(#e1e0d9 0 0) center 65% / 64% 9px no-repeat,
+      linear-gradient(#deded5 0 0) 20% 75% / 10% 9px no-repeat,
+      linear-gradient(#d4d7d0 0 0) 66% 75% / 56% 14px no-repeat,
+      linear-gradient(#e1e0d9 0 0) 66% 80% / 58% 9px no-repeat,
+      linear-gradient(#deded5 0 0) 20% 87% / 10% 9px no-repeat,
+      linear-gradient(#d4d7d0 0 0) 66% 87% / 52% 14px no-repeat,
+      rgba(249, 247, 241, 0.96);
+  }
+
+  .invitation-main.assets-loading #rsvp::before {
+    background:
+      linear-gradient(#deded5 0 0) center 7% / 32% 9px no-repeat,
+      linear-gradient(#d4d7d0 0 0) center 13% / 68% 22px no-repeat,
+      linear-gradient(#e1e0d9 0 0) center 18% / 72% 9px no-repeat,
+      linear-gradient(#d5d8d1 0 0) center 36% / 62% 9px no-repeat,
+      linear-gradient(#e1e0d9 0 0) center 41% / 64% 5px no-repeat,
+      linear-gradient(#deded5 0 0) center 49% / 62% 9px no-repeat,
+      linear-gradient(#e1e0d9 0 0) center 54% / 64% 5px no-repeat,
+      linear-gradient(#deded5 0 0) center 62% / 42% 9px no-repeat,
+      linear-gradient(#d4d7d0 0 0) center 69% / 45% 26px no-repeat,
+      rgba(249, 247, 241, 0.96);
+  }
+
+  .invitation-main.assets-loading #messages::before {
+    background:
+      linear-gradient(#deded5 0 0) center 6% / 28% 9px no-repeat,
+      linear-gradient(#d4d7d0 0 0) center 12% / 64% 22px no-repeat,
+      linear-gradient(#e1e0d9 0 0) center 17% / 72% 9px no-repeat,
+      linear-gradient(#d5d8d1 0 0) center 37% / 88% 25% no-repeat,
+      linear-gradient(#deded5 0 0) 12% 31% / 25% 9px no-repeat,
+      linear-gradient(#e1e0d9 0 0) 53% 39% / 70% 5px no-repeat,
+      linear-gradient(#e1e0d9 0 0) 53% 45% / 70% 5px no-repeat,
+      linear-gradient(#d5d8d1 0 0) center 66% / 88% 12% no-repeat,
+      linear-gradient(#d5d8d1 0 0) center 83% / 88% 12% no-repeat,
+      rgba(249, 247, 241, 0.96);
+  }
+
+  .invitation-main.assets-loading #gallery::before {
+    background:
+      linear-gradient(#deded5 0 0) center 5% / 28% 9px no-repeat,
+      linear-gradient(#d4d7d0 0 0) center 11% / 64% 22px no-repeat,
+      linear-gradient(#e1e0d9 0 0) center 16% / 72% 9px no-repeat,
+      linear-gradient(#d5d8d1 0 0) left 8% top 26% / 39% 28% no-repeat,
+      linear-gradient(#d5d8d1 0 0) right 8% top 26% / 39% 28% no-repeat,
+      linear-gradient(#d5d8d1 0 0) left 8% top 57% / 39% 22% no-repeat,
+      linear-gradient(#d5d8d1 0 0) right 8% top 57% / 39% 22% no-repeat,
+      linear-gradient(#d5d8d1 0 0) left 8% bottom 5% / 39% 16% no-repeat,
+      linear-gradient(#d5d8d1 0 0) right 8% bottom 5% / 39% 16% no-repeat,
+      rgba(249, 247, 241, 0.96);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .gate-loading-screen__logo img,
   .gate-loading-screen__dots span,
-  .invitation-main.assets-loading .section::after {
+  .invitation-main.assets-loading .section::after,
+  .invitation-main.assets-loading .quote-section::after,
+  .wedding-ui:has(.invitation-main.assets-loading) .closing-section::after {
     animation: none;
   }
 }
@@ -2809,4 +3059,168 @@
   .wedding-ui .editorial-countdown { margin-bottom: 22px; }
   .wedding-ui .calendar-save-actions { margin: 0 auto 40px; gap: 10px; }
   .wedding-ui .calendar-save-button { min-height: 48px; padding: 0 24px; }
+}
+
+/* Refined section skeleton layout: Story, RSVP, and Gallery.
+   Append this after the existing rules in src/WeddingInvitation.css. */
+
+/* Story, wide screens: keep the illustration and timeline in two clean columns. */
+.invitation-main.assets-loading #story::before {
+  background:
+    linear-gradient(#deded5 0 0) left 50% top 12% / 17% 9px no-repeat,
+    linear-gradient(#d4d7d0 0 0) left 50% top 19% / 39% 18px no-repeat,
+    linear-gradient(#d4d7d0 0 0) left 50% top 23% / 34% 18px no-repeat,
+    linear-gradient(#d4d7d0 0 0) left 50% top 27% / 27% 18px no-repeat,
+    linear-gradient(#deded5 0 0) left 50% top 39% / 5% 10px no-repeat,
+    linear-gradient(#d4d7d0 0 0) left 58% top 39% / 23% 15px no-repeat,
+    linear-gradient(#e1e0d9 0 0) left 58% top 43% / 31% 8px no-repeat,
+    linear-gradient(#e1e0d9 0 0) left 58% top 46% / 28% 8px no-repeat,
+    linear-gradient(#deded5 0 0) left 50% top 55% / 5% 10px no-repeat,
+    linear-gradient(#d4d7d0 0 0) left 58% top 55% / 25% 15px no-repeat,
+    linear-gradient(#e1e0d9 0 0) left 58% top 59% / 31% 8px no-repeat,
+    linear-gradient(#e1e0d9 0 0) left 58% top 62% / 26% 8px no-repeat,
+    linear-gradient(#deded5 0 0) left 50% top 71% / 5% 10px no-repeat,
+    linear-gradient(#d4d7d0 0 0) left 58% top 71% / 29% 15px no-repeat,
+    linear-gradient(#e1e0d9 0 0) left 58% top 75% / 31% 8px no-repeat,
+    linear-gradient(#e1e0d9 0 0) left 58% top 78% / 25% 8px no-repeat,
+    linear-gradient(#d5d8d1 0 0) left 14% top 9% / 31% 82% no-repeat,
+    rgba(249, 247, 241, 0.96);
+}
+
+/* RSVP, wide screens: two panels with readable, non-overlapping field rows. */
+.invitation-main.assets-loading #rsvp::before {
+  background:
+    linear-gradient(#deded5 0 0) left 20% top 17% / 14% 9px no-repeat,
+    linear-gradient(#d4d7d0 0 0) left 20% top 25% / 13% 23px no-repeat,
+    linear-gradient(#d4d7d0 0 0) left 20% top 30% / 11% 20px no-repeat,
+    linear-gradient(#d4d7d0 0 0) left 20% top 35% / 12% 20px no-repeat,
+    linear-gradient(#e1e0d9 0 0) left 20% top 44% / 13% 8px no-repeat,
+    linear-gradient(#e1e0d9 0 0) left 20% top 48% / 12% 8px no-repeat,
+    linear-gradient(#d5d8d1 0 0) left 20% top 60% / 12% 15px no-repeat,
+    linear-gradient(#deded5 0 0) left 39% top 16% / 12% 9px no-repeat,
+    linear-gradient(#d5d8d1 0 0) left 39% top 22% / 42% 4px no-repeat,
+    linear-gradient(#deded5 0 0) left 39% top 34% / 14% 9px no-repeat,
+    linear-gradient(#d5d8d1 0 0) left 39% top 40% / 42% 4px no-repeat,
+    linear-gradient(#d5d8d1 0 0) left 39% top 48% / 18% 18px no-repeat,
+    linear-gradient(#d5d8d1 0 0) left 59% top 48% / 22% 18px no-repeat,
+    linear-gradient(#d5d8d1 0 0) left 39% top 61% / 18% 30px no-repeat,
+    linear-gradient(#d5d8d1 0 0) left 59% top 61% / 22% 30px no-repeat,
+    linear-gradient(#d4d7d0 0 0) left 39% top 79% / 20% 26px no-repeat,
+    linear-gradient(#e6e7e0 0 0) left 18% top 9% / 18.5% 82% no-repeat,
+    linear-gradient(#fffdf8 0 0) left 36.5% top 9% / 45% 82% no-repeat,
+    rgba(249, 247, 241, 0.96);
+}
+
+/* Gallery, desktop/tablet: match the real 12-column collage and its row rhythm. */
+.invitation-main.assets-loading #gallery::before {
+  background:
+    linear-gradient(#deded5 0 0) left 40% top 9% / 18% 9px no-repeat,
+    linear-gradient(#d4d7d0 0 0) left 31% top 15% / 38% 25px no-repeat,
+    linear-gradient(#e1e0d9 0 0) left 29% top 21% / 42% 9px no-repeat,
+    linear-gradient(#d5d8d1 0 0) left 15% top 28% / 42% 41% no-repeat,
+    linear-gradient(#d5d8d1 0 0) left 58% top 28% / 29% 19% no-repeat,
+    linear-gradient(#d5d8d1 0 0) left 58% top 49% / 29% 19% no-repeat,
+    linear-gradient(#d5d8d1 0 0) left 15% top 70% / 23% 18% no-repeat,
+    linear-gradient(#d5d8d1 0 0) left 39% top 70% / 23% 18% no-repeat,
+    linear-gradient(#d5d8d1 0 0) left 64% top 70% / 23% 18% no-repeat,
+    rgba(249, 247, 241, 0.96);
+}
+
+/* At <=960px, the real Story and RSVP content stacks into a single column too. */
+@media (max-width: 960px) {
+  .invitation-main.assets-loading #story::before {
+    background:
+      linear-gradient(#d5d8d1 0 0) left 8% top 4% / 84% 43% no-repeat,
+      linear-gradient(#deded5 0 0) left 30% top 51% / 20% 9px no-repeat,
+      linear-gradient(#d4d7d0 0 0) left 14% top 56% / 72% 19px no-repeat,
+      linear-gradient(#d4d7d0 0 0) left 18% top 60% / 64% 19px no-repeat,
+      linear-gradient(#e1e0d9 0 0) left 17% top 64% / 66% 8px no-repeat,
+      linear-gradient(#deded5 0 0) left 14% top 70% / 8% 9px no-repeat,
+      linear-gradient(#d4d7d0 0 0) left 27% top 70% / 55% 15px no-repeat,
+      linear-gradient(#e1e0d9 0 0) left 27% top 73% / 55% 8px no-repeat,
+      linear-gradient(#e1e0d9 0 0) left 27% top 76% / 49% 8px no-repeat,
+      linear-gradient(#deded5 0 0) left 14% top 81% / 8% 9px no-repeat,
+      linear-gradient(#d4d7d0 0 0) left 27% top 81% / 55% 15px no-repeat,
+      linear-gradient(#e1e0d9 0 0) left 27% top 84% / 55% 8px no-repeat,
+      linear-gradient(#e1e0d9 0 0) left 27% top 87% / 47% 8px no-repeat,
+      linear-gradient(#deded5 0 0) left 14% top 92% / 8% 9px no-repeat,
+      linear-gradient(#d4d7d0 0 0) left 27% top 92% / 55% 15px no-repeat,
+      rgba(249, 247, 241, 0.96);
+  }
+
+  .invitation-main.assets-loading #rsvp::before {
+    background:
+      linear-gradient(#deded5 0 0) left 12% top 13% / 22% 9px no-repeat,
+      linear-gradient(#d4d7d0 0 0) left 12% top 20% / 76% 23px no-repeat,
+      linear-gradient(#d4d7d0 0 0) left 12% top 25% / 65% 18px no-repeat,
+      linear-gradient(#e1e0d9 0 0) left 12% top 32% / 76% 8px no-repeat,
+      linear-gradient(#e1e0d9 0 0) left 12% top 36% / 66% 8px no-repeat,
+      linear-gradient(#d5d8d1 0 0) left 12% top 43% / 31% 14px no-repeat,
+      linear-gradient(#deded5 0 0) left 12% top 61% / 18% 9px no-repeat,
+      linear-gradient(#d5d8d1 0 0) left 12% top 67% / 76% 4px no-repeat,
+      linear-gradient(#deded5 0 0) left 12% top 73% / 18% 9px no-repeat,
+      linear-gradient(#d5d8d1 0 0) left 12% top 79% / 76% 4px no-repeat,
+      linear-gradient(#d5d8d1 0 0) left 12% top 85% / 36% 24px no-repeat,
+      linear-gradient(#d5d8d1 0 0) left 52% top 85% / 36% 24px no-repeat,
+      linear-gradient(#e6e7e0 0 0) left 5% top 5% / 90% 51% no-repeat,
+      linear-gradient(#fffdf8 0 0) left 5% top 57% / 90% 37% no-repeat,
+      rgba(249, 247, 241, 0.96);
+  }
+}
+
+/* Phone layout: the real Gallery collage becomes a two-column flow. */
+@media (max-width: 640px) {
+  .invitation-main.assets-loading #story::before {
+    background:
+      linear-gradient(#d5d8d1 0 0) left 8% top 4% / 84% 35% no-repeat,
+      linear-gradient(#deded5 0 0) left 30% top 42% / 20% 8px no-repeat,
+      linear-gradient(#d4d7d0 0 0) left 12% top 47% / 76% 19px no-repeat,
+      linear-gradient(#d4d7d0 0 0) left 16% top 51% / 68% 18px no-repeat,
+      linear-gradient(#e1e0d9 0 0) left 15% top 55% / 70% 8px no-repeat,
+      linear-gradient(#deded5 0 0) left 10% top 62% / 9% 8px no-repeat,
+      linear-gradient(#d4d7d0 0 0) left 24% top 62% / 64% 14px no-repeat,
+      linear-gradient(#e1e0d9 0 0) left 24% top 65% / 64% 8px no-repeat,
+      linear-gradient(#e1e0d9 0 0) left 24% top 68% / 55% 8px no-repeat,
+      linear-gradient(#deded5 0 0) left 10% top 75% / 9% 8px no-repeat,
+      linear-gradient(#d4d7d0 0 0) left 24% top 75% / 64% 14px no-repeat,
+      linear-gradient(#e1e0d9 0 0) left 24% top 78% / 64% 8px no-repeat,
+      linear-gradient(#e1e0d9 0 0) left 24% top 81% / 55% 8px no-repeat,
+      linear-gradient(#deded5 0 0) left 10% top 88% / 9% 8px no-repeat,
+      linear-gradient(#d4d7d0 0 0) left 24% top 88% / 64% 14px no-repeat,
+      rgba(249, 247, 241, 0.96);
+  }
+
+  .invitation-main.assets-loading #rsvp::before {
+    background:
+      linear-gradient(#deded5 0 0) left 12% top 10% / 24% 8px no-repeat,
+      linear-gradient(#d4d7d0 0 0) left 10% top 16% / 80% 21px no-repeat,
+      linear-gradient(#d4d7d0 0 0) left 12% top 21% / 72% 17px no-repeat,
+      linear-gradient(#e1e0d9 0 0) left 10% top 28% / 80% 8px no-repeat,
+      linear-gradient(#e1e0d9 0 0) left 10% top 32% / 69% 8px no-repeat,
+      linear-gradient(#d5d8d1 0 0) left 10% top 39% / 34% 13px no-repeat,
+      linear-gradient(#deded5 0 0) left 12% top 49% / 24% 8px no-repeat,
+      linear-gradient(#d5d8d1 0 0) left 10% top 54% / 80% 4px no-repeat,
+      linear-gradient(#deded5 0 0) left 12% top 61% / 24% 8px no-repeat,
+      linear-gradient(#d5d8d1 0 0) left 10% top 66% / 80% 4px no-repeat,
+      linear-gradient(#d5d8d1 0 0) left 10% top 73% / 38% 25px no-repeat,
+      linear-gradient(#d5d8d1 0 0) left 52% top 73% / 38% 25px no-repeat,
+      linear-gradient(#e6e7e0 0 0) left 5% top 5% / 90% 35% no-repeat,
+      linear-gradient(#fffdf8 0 0) left 5% top 43% / 90% 53% no-repeat,
+      rgba(249, 247, 241, 0.96);
+  }
+
+  .invitation-main.assets-loading #gallery::before {
+    background:
+      linear-gradient(#deded5 0 0) left 36% top 5% / 28% 8px no-repeat,
+      linear-gradient(#d4d7d0 0 0) left 15% top 10% / 70% 22px no-repeat,
+      linear-gradient(#e1e0d9 0 0) left 10% top 15% / 80% 8px no-repeat,
+      linear-gradient(#d5d8d1 0 0) left 5% top 19% / 90% 23% no-repeat,
+      linear-gradient(#d5d8d1 0 0) left 5% top 43% / 43% 11% no-repeat,
+      linear-gradient(#d5d8d1 0 0) left 52% top 43% / 43% 11% no-repeat,
+      linear-gradient(#d5d8d1 0 0) left 5% top 56% / 90% 23% no-repeat,
+      linear-gradient(#d5d8d1 0 0) left 5% top 80% / 43% 11% no-repeat,
+      linear-gradient(#d5d8d1 0 0) left 52% top 80% / 43% 11% no-repeat,
+      linear-gradient(#deded5 0 0) left 25% top 94% / 50% 8px no-repeat,
+      rgba(249, 247, 241, 0.96);
+  }
 }
