@@ -7,13 +7,13 @@ export const weddingConfig = {
       name: 'Rayhan Konan Ferdion',
       shortName: 'Konan',
       parents:
-        'Putra dari Bapak [Nama Ayah Mempelai Pria] & Ibu [Nama Ibu Mempelai Pria]',
+        'Putra dari Bapak M. Hendro Gunawan & Ibu Dwiza Riana',
     },
     bride: {
       name: 'Ainy Nilover',
       shortName: 'Nilo',
       parents:
-        'Putri dari Bapak [Nama Ayah Mempelai Wanita] & Ibu [Nama Ibu Mempelai Wanita]',
+        'Putri dari Bapak Sajudin & Ibu Munawati',
     },
   },
   dateISO: '2026-11-14T15:30:00+07:00',
