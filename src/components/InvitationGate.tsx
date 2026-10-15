@@ -132,23 +132,9 @@ export function InvitationGate({
             <span>{weddingConfig.couple.bride.shortName}</span>
           </h1>
 
-          <p className="gate-fullnames">
-            <span>{weddingConfig.couple.groom.name}</span>
-            <span className="gate-fullnames__ampersand">&</span>
-            <span>{weddingConfig.couple.bride.name}</span>
-          </p>
-
-          <div className="gate-date" aria-label={weddingConfig.dateLabel}>
-            <span>{weddingConfig.dateParts.month}</span>
-            <strong>{weddingConfig.dateParts.day}</strong>
-            <span>{weddingConfig.dateParts.year}</span>
-          </div>
-
-          <div className="gate-copy">
-            <p className="gate-welcome">Selamat Datang</p>
-            <p className="gate-guest">
-              Di hari istimewa kami, <strong>{guestLine}</strong> adalah bagian dari kebahagiaan yang kami nantikan.
-            </p>
+          <div className="gate-recipient">
+            <p className="gate-recipient__label">Kepada Yth.</p>
+            <p className="gate-recipient__name">{guestLine}</p>
           </div>
 
           {!loading && !valid && (

@@ -10,6 +10,7 @@ adminRouter.use(requireAuth(['ADMIN']))
 const invitationSchema = z.object({
   guestName: z.string().trim().min(2).max(160),
   contact: z.string().trim().max(120).optional(),
+  guestType: z.enum(['VIP', 'REGULAR']).default('REGULAR'),
   quota: z.number().int().min(1).max(50),
 })
 
@@ -53,7 +54,7 @@ adminRouter.get('/invitations', async (_req, res, next) => {
       orderBy: { createdAt: 'desc' }, include: { rsvp: true, attendance: true, guests: { orderBy: { createdAt: 'asc' } } }, take: 200,
     })
     res.json({ data: rows.map((x) => ({
-      id: x.id, token: x.token, guestName: x.guestName, contact: x.contact, quota: x.quota, status: x.status,
+      id: x.id, token: x.token, guestName: x.guestName, contact: x.contact, guestType: x.guestType, quota: x.quota, status: x.status,
       guests: x.guests.map(g => ({ id: g.id, name: g.name, contact: g.contact, countedGuest: g.countedGuest })),
       rsvp: x.rsvp ? { attendance: x.rsvp.attendance, guestCount: x.rsvp.guestCount, babyCount: x.rsvp.babyCount, submittedAt: x.rsvp.submittedAt } : null,
       checkedInAt: x.attendance?.checkedInAt ?? null, checkInSource: x.attendance?.source ?? null, createdAt: x.createdAt,

@@ -3224,3 +3224,111 @@
       rgba(249, 247, 241, 0.96);
   }
 }
+/* Recipient replaces the full names, date, and introductory copy on the cover. */
+.wedding-ui .gate-recipient {
+  margin-top: 24px;
+  max-width: 320px;
+  text-align: center;
+}
+
+.wedding-ui .gate-recipient__label {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: rgba(113, 93, 84, .92);
+}
+
+.wedding-ui .gate-recipient__name {
+  margin: 0;
+  font-family: var(--wi-serif);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--wi-wine-deep);
+  overflow-wrap: anywhere;
+}
+
+/* Home section now carries the couple's full names and the date/time removed from the cover. */
+.wedding-ui .hero-fullnames {
+  margin: 14px 0 0;
+  font-family: var(--wi-serif);
+  font-size: clamp(15px, 1.5vw, 18px);
+  line-height: 1.5;
+  color: #786c61;
+}
+
+.wedding-ui .hero-fullnames span {
+  display: inline-block;
+  margin-inline: .25em;
+  color: var(--wi-sage);
+  font-style: italic;
+}
+
+.wedding-ui .hero-event-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 28px;
+  padding-top: 17px;
+  border-top: 1px solid rgba(123, 51, 55, .25);
+  color: var(--wi-wine-deep);
+}
+
+.wedding-ui .hero-event-meta__label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: #84796c;
+}
+
+.wedding-ui .hero-event-meta strong {
+  font-family: var(--wi-serif);
+  font-size: clamp(18px, 1.8vw, 22px);
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.wedding-ui .hero-event-meta__time {
+  font-size: 12px;
+  letter-spacing: .05em;
+  color: #786c61;
+}
+
+@media (max-width: 960px) {
+  .wedding-ui .hero-event-meta {
+    align-items: center;
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .wedding-ui .gate-recipient {
+    margin-top: 22px;
+    max-width: min(295px, 100%);
+  }
+
+  .wedding-ui .gate-recipient__name {
+    font-size: 20px;
+  }
+
+  .wedding-ui .hero-fullnames {
+    font-size: 15px;
+  }
+
+  .wedding-ui .hero-event-meta {
+    align-items: center;
+    width: 100%;
+    margin-top: 24px;
+    padding-top: 15px;
+    text-align: center;
+  }
+
+  .wedding-ui .hero-event-meta strong {
+    font-size: 19px;
+  }
+}

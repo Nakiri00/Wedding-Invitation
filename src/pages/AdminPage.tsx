@@ -11,7 +11,7 @@ export function AdminPage({ session, onLogout }: Props) {
   const [invitations, setInvitations] = useState<AdminInvitation[]>([])
   const [messages, setMessages] = useState<AdminMessage[]>([])
   const [selected, setSelected] = useState<AdminInvitation | null>(null)
-  const [guestName, setGuestName] = useState(''); const [contact, setContact] = useState(''); const [quota, setQuota] = useState(2)
+  const [guestName, setGuestName] = useState(''); const [contact, setContact] = useState(''); const [guestType, setGuestType] = useState<'VIP' | 'REGULAR'>('REGULAR'); const [quota, setQuota] = useState(2)
   const [newGuest, setNewGuest] = useState(''); const [newGuestContact, setNewGuestContact] = useState(''); const [counted, setCounted] = useState(true)
   const [notice, setNotice] = useState(''); const [loading, setLoading] = useState(false)
   
@@ -94,7 +94,7 @@ export function AdminPage({ session, onLogout }: Props) {
     return () => clearInterval(interval);
   }, [totalMessagePages]);
 
-  async function create(e: FormEvent) { e.preventDefault(); setLoading(true); try { await adminApi.createInvitation({ guestName, contact: contact || undefined, quota }); setGuestName(''); setContact(''); setNotice('Undangan berhasil dibuat.'); await refreshDashboard() } catch (e) { setNotice(e instanceof Error ? e.message : 'Gagal membuat undangan.') } finally { setLoading(false) } }
+  async function create(e: FormEvent) { e.preventDefault(); setLoading(true); try { await adminApi.createInvitation({ guestName, contact: contact || undefined, guestType, quota }); setGuestName(''); setContact(''); setGuestType('REGULAR'); setQuota(2); setNotice('Undangan berhasil dibuat.'); await refreshDashboard() } catch (e) { setNotice(e instanceof Error ? e.message : 'Gagal membuat undangan.') } finally { setLoading(false) } }
   async function moderate(id: string, status: 'PUBLISHED' | 'HIDDEN') { try { await adminApi.moderateMessage(id, status); await refreshDashboard() } catch (e) { setNotice(e instanceof Error ? e.message : 'Moderasi gagal.') } }
   async function revoke(id: string) { if (!confirm('Cabut undangan ini?')) return; try { await adminApi.revokeInvitation(id); await refreshDashboard() } catch (e) { setNotice(e instanceof Error ? e.message : 'Gagal mencabut undangan.') } }
   async function selectInvitation(i: AdminInvitation) { setSelected(i); setGuestPage(1); try { const guests = await adminApi.guests(i.id); setSelected({ ...i, guests }); setGuestPage(1) } catch (e) { setNotice(e instanceof Error ? e.message : 'Gagal memuat guest list.') } }
@@ -142,6 +142,19 @@ export function AdminPage({ session, onLogout }: Props) {
             <form style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '550px' }} onSubmit={create}>
               <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>Nama tamu<input value={guestName} onChange={e => setGuestName(e.target.value)} required /></label>
               <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>Kontak<input value={contact} onChange={e => setContact(e.target.value)} /></label>
+              <fieldset style={{ border: '1px solid #d8d8d8', borderRadius: '8px', padding: '0.75rem 1rem' }}>
+                <legend style={{ padding: '0 0.35rem', fontWeight: 600 }}>Tipe tamu</legend>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', width: 'auto', gap: '0.5rem', cursor: 'pointer' }}>
+                    <input type="radio" name="guestType" value="VIP" checked={guestType === 'VIP'} onChange={() => setGuestType('VIP')} style={{ width: '16px', height: '16px', margin: 0, flexShrink: 0 }} />
+                    <span>VIP</span>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', width: 'auto', gap: '0.5rem', cursor: 'pointer' }}>
+                    <input type="radio" name="guestType" value="REGULAR" checked={guestType === 'REGULAR'} onChange={() => setGuestType('REGULAR')} style={{ width: '16px', height: '16px', margin: 0, flexShrink: 0 }} />
+                    <span>Reguler</span>
+                  </label>
+                </div>
+              </fieldset>
               <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>Quota<input type="number" min="1" max="50" value={quota} onChange={e => setQuota(Number(e.target.value))} /></label>
               <button className="primary-button" disabled={loading} style={{ marginTop: '0.5rem' }}>{loading ? '...' : 'Tambah Data Tamu'}</button>
             </form>
@@ -198,11 +211,12 @@ export function AdminPage({ session, onLogout }: Props) {
           </div>
           <div className="table-wrap">
             <table>
-              <thead><tr><th>Tamu</th><th>Guest list</th><th>Quota</th><th>RSVP</th><th>Check-in</th><th>Link</th><th /></tr></thead>
+              <thead><tr><th>Tamu</th><th>Tipe</th><th>Guest list</th><th>Quota</th><th>RSVP</th><th>Check-in</th><th>Link</th><th /></tr></thead>
               <tbody>
                 {visibleInvitations.length > 0 ? visibleInvitations.map(i => (
                   <tr key={i.id} className={selected?.id === i.id ? 'row-selected' : ''}>
                     <td><strong>{i.guestName}</strong><small>{i.contact || '—'}</small></td>
+                    <td>{i.guestType === 'VIP' ? 'VIP' : 'Reguler'}</td>
                     <td><button className="text-button" onClick={() => selectInvitation(i)}>{i.guests.length} guest</button></td>
                     <td>{i.quota}</td>
                     <td>{i.rsvp ? `${i.rsvp.attendance} · ${i.rsvp.guestCount}` : 'Belum'}</td>
@@ -219,7 +233,7 @@ export function AdminPage({ session, onLogout }: Props) {
                     <td>{i.status === 'ACTIVE' && <button className="danger-link" onClick={() => revoke(i.id)}>Revoke</button>}</td>
                   </tr>
                 )) : (
-                  <tr><td colSpan={7} style={{ textAlign: 'center', padding: '2rem' }}>Tidak ada undangan ditemukan.</td></tr>
+                  <tr><td colSpan={8} style={{ textAlign: 'center', padding: '2rem' }}>Tidak ada undangan ditemukan.</td></tr>
                 )}
               </tbody>
             </table>

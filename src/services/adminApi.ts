@@ -2,7 +2,8 @@ const API_URL = (import.meta.env.VITE_API_URL ?? 'http://localhost:4000/api').re
 
 export interface AuthSession { user: { id: string; name: string; email?: string; role: 'ADMIN' | 'STAFF' }; csrfToken?:string }
 export interface AdminGuest { id: string; name: string; contact: string | null; countedGuest: boolean }
-export interface AdminInvitation { id: string; token: string; guestName: string; contact: string | null; quota: number; status: 'ACTIVE' | 'REVOKED'; guests: AdminGuest[]; rsvp: { attendance: 'ATTENDING' | 'NOT_ATTENDING'; guestCount: number; babyCount: number; submittedAt: string } | null; checkedInAt: string | null; checkInSource: 'STAFF' | 'WALK_IN' | null; createdAt: string }
+export type GuestType = 'VIP' | 'REGULAR'
+export interface AdminInvitation { id: string; token: string; guestName: string; contact: string | null; guestType: GuestType; quota: number; status: 'ACTIVE' | 'REVOKED'; guests: AdminGuest[]; rsvp: { attendance: 'ATTENDING' | 'NOT_ATTENDING'; guestCount: number; babyCount: number; submittedAt: string } | null; checkedInAt: string | null; checkInSource: 'STAFF' | 'WALK_IN' | null; createdAt: string }
 export interface AdminMessage { id: string; guestName: string; message: string; status: 'PENDING' | 'PUBLISHED' | 'HIDDEN'; createdAt: string; invitation: { guestName: string; token: string } | null }
 export interface Overview {
   invited: number; rsvp: number; attending: number; notAttending: number; checkedIn: number; pendingMessages: number; walkIns: number;
@@ -138,7 +139,7 @@ export const adminApi = {
   // Pertahankan seluruh method lainnya seperti sebelumnya.
   overview: () => request<Overview>('/admin/overview'),
   invitations: () => request<AdminInvitation[]>('/admin/invitations'),
-  createInvitation: (payload: { guestName: string; contact?: string; quota: number }) => request<AdminInvitation>('/admin/invitations', { method: 'POST', body: JSON.stringify(payload) }),
+  createInvitation: (payload: { guestName: string; contact?: string; guestType: GuestType; quota: number }) => request<AdminInvitation>('/admin/invitations', { method: 'POST', body: JSON.stringify(payload) }),
   revokeInvitation: (id: string) => request<AdminInvitation>(`/admin/invitations/${id}/revoke`, { method: 'POST' }),
   messages: () => request<AdminMessage[]>('/admin/messages'),
   moderateMessage: (id: string, status: 'PUBLISHED' | 'HIDDEN') => request<AdminMessage>(`/admin/messages/${id}`, { method: 'PATCH', body: JSON.stringify({ status }) }),

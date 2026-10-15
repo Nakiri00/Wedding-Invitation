@@ -5,6 +5,8 @@ import { prewedArt } from '../data/prewedArt'
 import { PrewedImage } from './PrewedImage'
 
 export function OpeningSection() {
+  const { groom, bride } = weddingConfig.couple
+
   return (
     <section className="section invitation-hero" id="home">
       <img className="top-canopy" src={weddingAssets.canopy.top} alt="" aria-hidden="true" />
@@ -20,7 +22,17 @@ export function OpeningSection() {
             Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menjadi bagian dari hari bahagia kami.
           </p>
           <div className="signature">
-            {weddingConfig.couple.groom.shortName} <em>&amp;</em> {weddingConfig.couple.bride.shortName}
+            {groom.shortName} <em>&amp;</em> {bride.shortName}
+          </div>
+
+          <p className="hero-fullnames">
+            {groom.name} <span aria-hidden="true">&amp;</span> {bride.name}
+          </p>
+
+          <div className="hero-event-meta" aria-label={`Tanggal pernikahan: ${weddingConfig.dateLabel}`}>
+            <span className="hero-event-meta__label">Save the Date</span>
+            <strong>{weddingConfig.dateLabel}</strong>
+            <span className="hero-event-meta__time">{weddingConfig.timeLabel}</span>
           </div>
         </div>
 
