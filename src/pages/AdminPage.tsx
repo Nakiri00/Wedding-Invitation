@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useCallback, useRef } from 'react'
 import type { FormEvent } from 'react'
 import { adminApi, type AdminInvitation, type AdminMessage, type AuthSession, type Overview } from '../services/adminApi'
 import { Pagination } from '../components/Pagination'
 import { SearchBar } from '../components/SearchBar'
-
+import { isValidIndonesianPhone } from '../lib/phone'
 interface Props { session: AuthSession; onLogout: () => void }
 
 export function AdminPage({ session, onLogout }: Props) {
@@ -21,41 +21,145 @@ export function AdminPage({ session, onLogout }: Props) {
   
   const [searchMessage, setSearchMessage] = useState('')
   const [searchInvitation, setSearchInvitation] = useState('')
+  const previousMessageIdsRef = useRef<Set<string> | null>(null)
 
-  const refreshDashboard = async () => {
-    const [overviewData, invitationData, messageData] = await Promise.all([
-      adminApi.overview(),
-      adminApi.invitations(),
-      adminApi.messages(),
-    ])
+  const previousCheckInsRef = useRef<Map<string, string | null> | null>(
+    null,
+  )
+
+  const refreshDashboard = useCallback(async () => {
+    const [overviewData, invitationData, messageData] =
+      await Promise.all([
+        adminApi.overview(),
+        adminApi.invitations(),
+        adminApi.messages(),
+      ])
+
+    const previousMessageIds = previousMessageIdsRef.current
+    const hasNewMessages =
+      previousMessageIds !== null &&
+      messageData.some(
+        (message) => !previousMessageIds.has(message.id),
+      )
+
+    const previousCheckIns = previousCheckInsRef.current
+    const hasNewCheckIn =
+      previousCheckIns !== null &&
+      invitationData.some(
+        (invitation) =>
+          Boolean(invitation.checkedInAt) &&
+          previousCheckIns.get(invitation.id) !==
+            invitation.checkedInAt,
+      )
+
+    // Simpan snapshot terbaru untuk pemeriksaan berikutnya.
+    previousMessageIdsRef.current = new Set(
+      messageData.map((message) => message.id),
+    )
+
+    previousCheckInsRef.current = new Map(
+      invitationData.map((invitation) => [
+        invitation.id,
+        invitation.checkedInAt,
+      ]),
+    )
+
+    // Bawa aktivitas baru ke halaman pertama.
+    if (hasNewMessages) {
+      setMessagePage(1)
+    }
+
+    if (hasNewCheckIn) {
+      setInvitationPage(1)
+    }
+
+    // React memperbarui UI tanpa reload halaman.
     setOverview(overviewData)
     setInvitations(invitationData)
     setMessages(messageData)
-    setSelected((prev) => prev ? invitationData.find((item) => item.id === prev.id) ?? null : null)
-  }
+
+    setSelected((previous) =>
+      previous
+        ? invitationData.find(
+            (item) => item.id === previous.id,
+          ) ?? null
+        : null,
+    )
+}, [])
 
   useEffect(() => {
     let cancelled = false
-    const loadDashboard = async () => {
+    let inFlight = false
+
+    const loadDashboard = async (reportError = false) => {
+      // Jangan melakukan request jika tab tidak aktif
+      // atau request sebelumnya masih berjalan.
+      if (
+        cancelled ||
+        inFlight ||
+        document.visibilityState === 'hidden'
+      ) {
+        return
+      }
+
+      inFlight = true
+
       try {
-        const [overviewData, invitationData, messageData] = await Promise.all([
-          adminApi.overview(),
-          adminApi.invitations(),
-          adminApi.messages(),
-        ])
-        if (cancelled) return
-        setOverview(overviewData)
-        setInvitations(invitationData)
-        setMessages(messageData)
-        setSelected((prev) => prev ? invitationData.find((item) => item.id === prev.id) ?? null : null)
+        await refreshDashboard()
       } catch (error: unknown) {
-        if (cancelled) return
-        setNotice(error instanceof Error ? error.message : 'Gagal memuat dashboard.')
+        // Error polling berikutnya tidak mengganggu UI.
+        if (reportError && !cancelled) {
+          setNotice(
+            error instanceof Error
+              ? error.message
+              : 'Gagal memuat dashboard.',
+          )
+        }
+      } finally {
+        inFlight = false
       }
     }
-    void loadDashboard()
-    return () => { cancelled = true }
-  }, [])
+
+    // Ambil data pertama kali.
+    void loadDashboard(true)
+
+    // Periksa apakah ada perubahan setiap 5 detik.
+    const interval = window.setInterval(() => {
+      void loadDashboard()
+    }, 5000)
+
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === 'visible') {
+        void loadDashboard()
+      }
+    }
+
+    const refreshWhenFocused = () => {
+      void loadDashboard()
+    }
+
+    document.addEventListener(
+      'visibilitychange',
+      refreshWhenVisible,
+    )
+
+    window.addEventListener('focus', refreshWhenFocused)
+
+    return () => {
+      cancelled = true
+      window.clearInterval(interval)
+
+      document.removeEventListener(
+        'visibilitychange',
+        refreshWhenVisible,
+      )
+
+      window.removeEventListener(
+        'focus',
+        refreshWhenFocused,
+      )
+    }
+  }, [refreshDashboard])
 
   const filteredMessages = useMemo(() => {
     if (!searchMessage.trim()) return messages
@@ -64,9 +168,42 @@ export function AdminPage({ session, onLogout }: Props) {
   }, [messages, searchMessage])
 
   const filteredInvitations = useMemo(() => {
-    if (!searchInvitation.trim()) return invitations
+    const sorted = [...invitations].sort((a, b) => {
+      const checkedInA = a.checkedInAt
+        ? new Date(a.checkedInAt).getTime()
+        : 0
+
+      const checkedInB = b.checkedInAt
+        ? new Date(b.checkedInAt).getTime()
+        : 0
+
+      // Tamu yang sudah check-in selalu berada di atas.
+      // Check-in terbaru tampil paling atas.
+      if (checkedInA !== checkedInB) {
+        return checkedInB - checkedInA
+      }
+
+      // Jika status check-in sama, urutkan berdasarkan
+      // waktu pembuatan undangan terbaru.
+      return (
+        new Date(b.createdAt).getTime() -
+        new Date(a.createdAt).getTime()
+      )
+    })
+
+    if (!searchInvitation.trim()) {
+      return sorted
+    }
+
     const lower = searchInvitation.toLowerCase()
-    return invitations.filter(i => i.guestName.toLowerCase().includes(lower) || (i.contact && i.contact.toLowerCase().includes(lower)))
+
+    return sorted.filter(
+      (invitation) =>
+        invitation.guestName.toLowerCase().includes(lower) ||
+        Boolean(
+          invitation.contact?.toLowerCase().includes(lower),
+        ),
+    )
   }, [invitations, searchInvitation])
 
   const pending = messages.filter(m => m.status === 'PENDING').length
@@ -94,11 +231,58 @@ export function AdminPage({ session, onLogout }: Props) {
     return () => clearInterval(interval);
   }, [totalMessagePages]);
 
-  async function create(e: FormEvent) { e.preventDefault(); setLoading(true); try { await adminApi.createInvitation({ guestName, contact: contact || undefined, guestType, quota }); setGuestName(''); setContact(''); setGuestType('REGULAR'); setQuota(2); setNotice('Undangan berhasil dibuat.'); await refreshDashboard() } catch (e) { setNotice(e instanceof Error ? e.message : 'Gagal membuat undangan.') } finally { setLoading(false) } }
+  async function create(e: FormEvent) {
+    e.preventDefault()
+
+    if (
+      contact.trim() &&
+      !isValidIndonesianPhone(contact)
+    ) {
+      setNotice(
+        'Nomor kontak tidak valid. Contoh: 081234567890 atau 6281234567890.',
+      )
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      await adminApi.createInvitation({
+        guestName,
+        contact: contact || undefined,
+        guestType,
+        quota,
+      })
+
+      setGuestName('')
+      setContact('')
+      setGuestType('REGULAR')
+      setQuota(2)
+      setNotice('Undangan berhasil dibuat.')
+
+      await refreshDashboard()
+    } catch (e) {
+      setNotice(
+        e instanceof Error
+          ? e.message
+          : 'Gagal membuat undangan.',
+      )
+    } finally {
+      setLoading(false)
+    }
+  }
   async function moderate(id: string, status: 'PUBLISHED' | 'HIDDEN') { try { await adminApi.moderateMessage(id, status); await refreshDashboard() } catch (e) { setNotice(e instanceof Error ? e.message : 'Moderasi gagal.') } }
   async function revoke(id: string) { if (!confirm('Cabut undangan ini?')) return; try { await adminApi.revokeInvitation(id); await refreshDashboard() } catch (e) { setNotice(e instanceof Error ? e.message : 'Gagal mencabut undangan.') } }
   async function selectInvitation(i: AdminInvitation) { setSelected(i); setGuestPage(1); try { const guests = await adminApi.guests(i.id); setSelected({ ...i, guests }); setGuestPage(1) } catch (e) { setNotice(e instanceof Error ? e.message : 'Gagal memuat guest list.') } }
-  async function addGuest(e: FormEvent) { e.preventDefault(); if (!selected) return; try { await adminApi.addGuest(selected.id, { name: newGuest, contact: newGuestContact || undefined, countedGuest: counted }); setNewGuest(''); setNewGuestContact(''); await refreshDashboard(); const fresh = (await adminApi.invitations()).find(x => x.id === selected.id); if (fresh) selectInvitation(fresh); setNotice('Tamu berhasil ditambahkan.') } catch (e) { setNotice(e instanceof Error ? e.message : 'Gagal menambahkan tamu.') } }
+  async function addGuest(e: FormEvent) { e.preventDefault(); if (!selected) return; if (
+    newGuestContact.trim() &&
+    !isValidIndonesianPhone(newGuestContact)
+  ) {
+    setNotice(
+      'Nomor kontak tamu tidak valid. Masukkan nomor telepon Indonesia yang benar.',
+    )
+    return
+  }try { await adminApi.addGuest(selected.id, { name: newGuest, contact: newGuestContact || undefined, countedGuest: counted }); setNewGuest(''); setNewGuestContact(''); await refreshDashboard(); const fresh = (await adminApi.invitations()).find(x => x.id === selected.id); if (fresh) selectInvitation(fresh); setNotice('Tamu berhasil ditambahkan.') } catch (e) { setNotice(e instanceof Error ? e.message : 'Gagal menambahkan tamu.') } }
   async function deleteGuest(id: string) { if (!confirm('Hapus tamu ini dari daftar undangan?')) return; setGuestPage(1); try { await adminApi.deleteGuest(id); await refreshDashboard(); if (selected) { const fresh = (await adminApi.invitations()).find(x => x.id === selected.id); if (fresh) selectInvitation(fresh) } } catch (e) { setNotice(e instanceof Error ? e.message : 'Gagal menghapus tamu.') } }
 
   return (
@@ -141,7 +325,7 @@ export function AdminPage({ session, onLogout }: Props) {
             <div className="panel-head"><div><span className="console-kicker">INVITATIONS</span><h2>Buat undangan</h2></div></div>
             <form style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '550px' }} onSubmit={create}>
               <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>Nama tamu<input value={guestName} onChange={e => setGuestName(e.target.value)} required /></label>
-              <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>Kontak<input value={contact} onChange={e => setContact(e.target.value)} /></label>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>Kontak<input inputMode="numeric" pattern="[0-9]*" value={contact} onChange={e => setContact(e.target.value.replace(/\D/g, ''))} required /></label>
               <fieldset style={{ border: '1px solid #d8d8d8', borderRadius: '8px', padding: '0.75rem 1rem' }}>
                 <legend style={{ padding: '0 0.35rem', fontWeight: 600 }}>Tipe tamu</legend>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
@@ -155,7 +339,7 @@ export function AdminPage({ session, onLogout }: Props) {
                   </label>
                 </div>
               </fieldset>
-              <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>Quota<input type="number" min="1" max="50" value={quota} onChange={e => setQuota(Number(e.target.value))} /></label>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>Quota<input type="number" min="1" max="2" step="1" required value={quota} onChange={e => { const value = Number(e.target.value); setQuota(e.target.value === '' ? 1 : Math.min(2, Math.max(1, Math.trunc(value || 1)))) }} /></label>
               <button className="primary-button" disabled={loading} style={{ marginTop: '0.5rem' }}>{loading ? '...' : 'Tambah Data Tamu'}</button>
             </form>
           </section>
@@ -249,7 +433,7 @@ export function AdminPage({ session, onLogout }: Props) {
             <div className="guest-manager-grid">
               <form className="guest-add-form" onSubmit={addGuest}>
                 <label>Nama tamu<input value={newGuest} onChange={e => setNewGuest(e.target.value)} required /></label>
-                <label>Kontak<input value={newGuestContact} onChange={e => setNewGuestContact(e.target.value)} /></label>
+                <label>Kontak<input inputMode="numeric" pattern="[0-9]*" value={newGuestContact} onChange={e => setNewGuestContact(e.target.value.replace(/\D/g, ''))} /></label>
                 <label className="checkbox-line"><input type="checkbox" checked={counted} onChange={e => setCounted(e.target.checked)} /> Masuk quota</label>
                 <button className="primary-button">Tambah tamu</button>
               </form>

@@ -3,20 +3,57 @@ import { randomBytes } from 'node:crypto'
 import { prisma } from '../../lib/prisma.js'
 import { requireAuth } from '../../middleware/auth.js'
 import { z } from 'zod'
+import { parsePhoneNumberFromString } from 'libphonenumber-js/max'
 
 export const adminRouter = Router()
 adminRouter.use(requireAuth(['ADMIN']))
 
+function isValidIndonesianPhone(value: string): boolean {
+  const candidate = value.startsWith('62')
+    ? `+${value}`
+    : value
+
+  const phone = parsePhoneNumberFromString(candidate, {
+    defaultCountry: 'ID',
+    extract: false,
+  })
+
+  return Boolean(
+    phone &&
+    phone.country === 'ID' &&
+    phone.isValid(),
+  )
+}
+
+const contactSchema = z.preprocess(
+  (value) =>
+    typeof value === 'string' && value.trim() === ''
+      ? undefined
+      : value,
+  z.string()
+    .trim()
+    .max(20, 'Nomor telepon terlalu panjang.')
+    .regex(
+      /^\d+$/,
+      'Kontak hanya boleh berisi angka.',
+    )
+    .refine(
+      isValidIndonesianPhone,
+      'Nomor telepon Indonesia tidak valid.',
+    )
+    .optional(),
+)
+
 const invitationSchema = z.object({
   guestName: z.string().trim().min(2).max(160),
-  contact: z.string().trim().max(120).optional(),
+  contact: contactSchema,
   guestType: z.enum(['VIP', 'REGULAR']).default('REGULAR'),
-  quota: z.number().int().min(1).max(50),
+  quota: z.number().int().min(1).max(2),
 })
 
 const guestSchema = z.object({
   name: z.string().trim().min(2).max(160),
-  contact: z.string().trim().max(120).optional(),
+  contact: contactSchema,
   countedGuest: z.boolean().default(true),
 })
 
