@@ -23,21 +23,18 @@ export function MessageSection({ token, guestName, initialMessages: serverMessag
   const [page, setPage] = useState(1)
   const [submitting, setSubmitting] = useState(false)
 
-  const messages = serverMessages ?? []
-  const publishedMessages = useMemo(() => messages.filter((item) => item.status === 'published'), [messages])
+  const publishedMessages = useMemo(
+    () => serverMessages.filter((item) => item.status === 'published'),
+    [serverMessages],
+  )
   const pageSize = 3
   const totalPages = Math.max(1, Math.ceil(publishedMessages.length / pageSize))
   const visibleMessages = useMemo(
     () => publishedMessages.slice((page - 1) * pageSize, page * pageSize),
     [publishedMessages, page],
   )
-  const [hasSubmitted, setHasSubmitted] = useState(
-  hasSubmittedInitially,
-  )
-
-  useEffect(() => {
-    setHasSubmitted(hasSubmittedInitially)
-  }, [token, hasSubmittedInitially])
+  const [submittedToken, setSubmittedToken] = useState<string | null>(null)
+  const hasSubmitted = hasSubmittedInitially || submittedToken === token
 
   useEffect(() => {
     if (totalPages <= 1) return
@@ -83,7 +80,7 @@ export function MessageSection({ token, guestName, initialMessages: serverMessag
       onMessageCreated(created)
       setPage(1)
       setMessage('')
-      setHasSubmitted(true)
+      setSubmittedToken(token)
     } catch (reason: unknown) {
       setStatus(
         reason instanceof Error

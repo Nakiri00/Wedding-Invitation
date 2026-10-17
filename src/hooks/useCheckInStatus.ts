@@ -15,14 +15,13 @@ export function useCheckInStatus(
   token: string,
   enabled: boolean,
 ) {
-  const [status, setStatus] =
-    useState<CheckInStatus>(initialStatus)
+  const [statusSnapshot, setStatusSnapshot] = useState<{
+    token: string
+    status: CheckInStatus
+  } | null>(null)
 
   useEffect(() => {
-    if (!token || !enabled) {
-      setStatus(initialStatus)
-      return
-    }
+    if (!token || !enabled) return
 
     let active = true
     let inFlight = false
@@ -37,7 +36,7 @@ export function useCheckInStatus(
           await weddingApi.getCheckInStatus(token)
 
         if (active) {
-          setStatus(result)
+          setStatusSnapshot({ token, status: result })
         }
       } catch {
         // Kegagalan polling tidak perlu mengganggu UI tamu.
@@ -90,5 +89,7 @@ export function useCheckInStatus(
     }
   }, [token, enabled])
 
-  return status
+  return token && enabled && statusSnapshot?.token === token
+    ? statusSnapshot.status
+    : initialStatus
 }

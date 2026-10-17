@@ -22,7 +22,7 @@ export function OpeningSection() {
             Dengan penuh sukacita, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dan menjadi bagian dari hari bahagia kami.
           </p>
           <div className="signature">
-            {groom.shortName} <em>&amp;</em> {bride.shortName}
+            <b>{groom.shortName} <em>&amp;</em> {bride.shortName}</b>
           </div>
 
           <p className="hero-fullnames">

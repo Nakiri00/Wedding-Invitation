@@ -76,7 +76,7 @@ export function CoupleSection() {
                   ✦
                 </span>
 
-                <p className="couple-profile__parents">
+                <p className="couple-profile__parents" style={{whiteSpace : 'pre-line'}}>
                   {person.parents}
                 </p>
               </div>

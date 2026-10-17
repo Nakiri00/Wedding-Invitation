@@ -7,7 +7,7 @@ export const weddingConfig = {
       name: 'Rayhan Konan Ferdion',
       shortName: 'Konan',
       parents:
-        'Putra dari Bapak M. Hendro Gunawan & Ibu Dwiza Riana',
+        'Putra dari Bapak M. Hendro Gunawan \n& Ibu Dwiza Riana',
     },
     bride: {
       name: 'Ainy Nilover',

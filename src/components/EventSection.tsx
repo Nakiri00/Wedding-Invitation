@@ -46,9 +46,9 @@ export function EventSection() {
             </svg>
             <span>Simpan Tanggal</span>
           </a>
-          <button type="button" className="calendar-download-link" onClick={downloadCalendarFile}>
+          {/* <button type="button" className="calendar-download-link" onClick={downloadCalendarFile}>
             Atau unduh file kalender (.ics)
-          </button>
+          </button> */}
         </div>
 
 

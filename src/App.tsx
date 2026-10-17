@@ -1,4 +1,5 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import type { TouchEvent, WheelEvent } from 'react'
 import { InvitationGate } from './components/InvitationGate'
 import { OpeningSection } from './components/OpeningSection'
 import { QuoteSection } from './components/QuoteSection'
@@ -9,7 +10,6 @@ import { RSVPSection } from './components/RSVPSection'
 import { MessageSection } from './components/MessageSection'
 import { GallerySection } from './components/GallerySection'
 import { Footer } from './components/Footer'
-import { ScrollProgress } from './components/ScrollProgress'
 import { MusicControl } from './components/MusicControl'
 import { FallingPetals } from './components/FallingPetals'
 import type { MessageItem, RSVPSubmission } from './types/wedding'
@@ -17,9 +17,9 @@ import { useInvitation } from './hooks/useInvitation'
 import { useCheckInStatus } from './hooks/useCheckInStatus'
 import { weddingApi } from './services/api'
 import { weddingConfig } from './data/wedding'
-import { useScrollSpy } from './hooks/useScrollSpy'
 import { useContainerAssetsReady } from './hooks/useContainerAssetsReady';
 import './WeddingInvitation.css'
+import './book-pages.css'
 import { loadPreviewSession, savePreviewSession, type PreviewSession } from './lib/previewSession'
 
 const ConsoleApp = lazy(() => import('./ConsoleApp').then((module) => ({ default: module.ConsoleApp })))
@@ -34,7 +34,8 @@ const navItems = [
   { id: 'gallery', symbol: '▦', label: 'Galeri' },
 ] as const
 
-const navSectionIds = navItems.map(({ id }) => id)
+const bookPageIds = ['home', 'quote', 'couple', 'event', 'story', 'rsvp', 'messages', 'gallery', 'closing'] as const
+const bookPageLabels = ['Pembuka', 'Kutipan', 'Mempelai', 'Acara', 'Kisah', 'RSVP', 'Pesan & Kesan', 'Galeri', 'Penutup']
 
 function getCurrentPath() {
   const hashPath = window.location.hash.slice(1).trim();
@@ -91,9 +92,53 @@ function WeddingInvitationApp() {
   const [invitationOpened, setInvitationOpened] = useState(false)
   const [musicPlaying, setMusicPlaying] = useState(false)
   const [musicUnavailable, setMusicUnavailable] = useState(false)
-  const { activeSection, activateSection } = useScrollSpy(navSectionIds, {
-    enabled: invitationOpened,
-  })
+  const [activePageIndex, setActivePageIndex] = useState(0)
+  const [bookNavOpen, setBookNavOpen] = useState(false)
+  const [turnState, setTurnState] = useState<{ from: number; to: number; direction: 'next' | 'previous' } | null>(null)
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null)
+  const pointerStartRef = useRef<{ x: number; y: number } | null>(null)
+  const turnTimeoutRef = useRef<number | null>(null)
+
+  const goToPage = useCallback((requestedIndex: number) => {
+    const nextIndex = Math.max(0, Math.min(bookPageIds.length - 1, requestedIndex))
+    if (nextIndex === activePageIndex) return
+
+    setTurnState({
+      from: activePageIndex,
+      to: nextIndex,
+      direction: nextIndex > activePageIndex ? 'next' : 'previous',
+    })
+    setActivePageIndex(nextIndex)
+
+    if (turnTimeoutRef.current !== null) window.clearTimeout(turnTimeoutRef.current)
+    turnTimeoutRef.current = window.setTimeout(() => {
+      setTurnState(null)
+      turnTimeoutRef.current = null
+    }, 720)
+  }, [activePageIndex])
+
+  useEffect(() => () => {
+    if (turnTimeoutRef.current !== null) window.clearTimeout(turnTimeoutRef.current)
+  }, [])
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!invitationOpened) return
+      const target = event.target
+      if (target instanceof HTMLElement && target.closest('input, textarea, select, [contenteditable="true"]')) return
+
+      if (event.key === 'ArrowRight' || event.key === 'PageDown') {
+        event.preventDefault()
+        goToPage(activePageIndex + 1)
+      } else if (event.key === 'ArrowLeft' || event.key === 'PageUp') {
+        event.preventDefault()
+        goToPage(activePageIndex - 1)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [activePageIndex, goToPage, invitationOpened])
   const invitationToken = useMemo(
     () => new URLSearchParams(window.location.search).get('invite')?.trim() ?? '',
     [],
@@ -223,12 +268,51 @@ function WeddingInvitationApp() {
   }
 
   const scrollTo = (id: string) => {
-    activateSection(id)
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    const pageIndex = bookPageIds.indexOf(id as (typeof bookPageIds)[number])
+    if (pageIndex >= 0) goToPage(pageIndex)
+  }
+
+  const getBookPageClass = (index: number) => {
+    const turnClass = turnState?.from === index
+      ? `is-leaving-${turnState.direction}`
+      : turnState?.to === index
+        ? `is-entering-${turnState.direction}`
+        : ''
+    return `book-page ${activePageIndex === index ? 'is-active' : ''} ${turnClass}`.trim()
+  }
+
+  const startTouchGesture = (event: TouchEvent<HTMLDivElement>) => {
+    const target = event.target
+    if (target instanceof Element && target.closest('input, textarea, select, button, a, [data-no-page-swipe]')) {
+      touchStartRef.current = null
+      return
+    }
+    const touch = event.touches[0]
+    if (touch) touchStartRef.current = { x: touch.clientX, y: touch.clientY }
+  }
+
+  const finishTouchGesture = (event: TouchEvent<HTMLDivElement>) => {
+    const start = touchStartRef.current
+    touchStartRef.current = null
+    const touch = event.changedTouches[0]
+    if (!start || !touch) return
+
+    const deltaX = touch.clientX - start.x
+    const deltaY = touch.clientY - start.y
+    if (Math.abs(deltaX) < 64 || Math.abs(deltaX) < Math.abs(deltaY) * 1.25) return
+
+    // Sesuai permintaan: swipe kanan membuka halaman selanjutnya, swipe kiri kembali.
+    goToPage(activePageIndex + (deltaX > 0 ? 1 : -1))
+  }
+
+  const handlePageWheel = (event: WheelEvent<HTMLDivElement>) => {
+    if (Math.abs(event.deltaX) < 42 || Math.abs(event.deltaX) < Math.abs(event.deltaY) * 1.2) return
+    event.preventDefault()
+    goToPage(activePageIndex + (event.deltaX > 0 ? 1 : -1))
   }
 
   return (
-    <div className="wedding-ui">
+    <div className="wedding-ui book-mode">
       {invalidInvitationMessage && (
         <div
           className="invitation-status-alert"
@@ -302,37 +386,40 @@ function WeddingInvitationApp() {
             </button>
           </div>
         )}
-        <ScrollProgress />
+        <div className="book-progress" aria-hidden="true">
+          <span style={{ width: `${((activePageIndex + 1) / bookPageIds.length) * 100}%` }} />
+        </div>
         <FallingPetals mode="global" />
-
-        <nav className="floating-nav" aria-label="Navigasi undangan">
-          {navItems.map(({ id, symbol, label }) => {
-            const isActive = activeSection === id
-
-            return (
-              <button
-                key={id}
-                className={isActive ? 'is-active' : ''}
-                type="button"
-                onClick={() => scrollTo(id)}
-                aria-label={`Buka ${label}`}
-                aria-current={isActive ? 'location' : undefined}
-                title={label}
-              >
-                <span className="floating-nav__icon" aria-hidden="true">{symbol}</span>
-                <span className="floating-nav__label">{label}</span>
-                <span className="floating-nav__mobile-label" aria-hidden="true">{label}</span>
-              </button>
-            )
-          })}
-        </nav>
-
-        <main ref={sectionAssetsRef} className={`invitation-main ${ sectionAssetsReady? 'assets-ready': 'assets-loading'}`}aria-busy={!sectionAssetsReady}>
-          <OpeningSection />
-          <QuoteSection />
-          <CoupleSection />
-          <EventSection />
-          <StorySection />
+        <main ref={sectionAssetsRef} className={`invitation-main book-mode ${sectionAssetsReady ? 'assets-ready' : 'assets-loading'}`} aria-busy={!sectionAssetsReady}>
+          <div
+            className="book-page-stack"
+            onTouchStart={startTouchGesture}
+            onTouchEnd={finishTouchGesture}
+            onWheel={handlePageWheel}
+            onPointerDown={(event) => {
+              if (event.pointerType === 'touch' || event.button !== 0) return
+              const target = event.target
+              if (target instanceof Element && target.closest('input, textarea, select, button, a, [data-no-page-swipe]')) return
+              pointerStartRef.current = { x: event.clientX, y: event.clientY }
+            }}
+            onPointerUp={(event) => {
+              if (event.pointerType === 'touch') return
+              const start = pointerStartRef.current
+              pointerStartRef.current = null
+              if (!start) return
+              const deltaX = event.clientX - start.x
+              const deltaY = event.clientY - start.y
+              if (Math.abs(deltaX) < 84 || Math.abs(deltaX) < Math.abs(deltaY) * 1.35) return
+              goToPage(activePageIndex + (deltaX > 0 ? 1 : -1))
+            }}
+            onPointerCancel={() => { pointerStartRef.current = null }}
+          >
+          <div className={getBookPageClass(0)} data-book-page="home" aria-hidden={activePageIndex !== 0}><OpeningSection /></div>
+          <div className={getBookPageClass(1)} data-book-page="quote" aria-hidden={activePageIndex !== 1}><QuoteSection /></div>
+          <div className={getBookPageClass(2)} data-book-page="couple" aria-hidden={activePageIndex !== 2}><CoupleSection /></div>
+          <div className={getBookPageClass(3)} data-book-page="event" aria-hidden={activePageIndex !== 3}><EventSection /></div>
+          <div className={getBookPageClass(4)} data-book-page="story" aria-hidden={activePageIndex !== 4}><StorySection /></div>
+          <div className={getBookPageClass(5)} data-book-page="rsvp" aria-hidden={activePageIndex !== 5}>
           <RSVPSection
             key={invitation?.guestName ?? 'unknown-guest'}
             previewMode={previewMode}
@@ -346,6 +433,8 @@ function WeddingInvitationApp() {
             checkedInAt={checkInStatus.checkedInAt}
             onSubmit={handleRSVP}
           />
+          </div>
+          <div className={getBookPageClass(6)} data-book-page="messages" aria-hidden={activePageIndex !== 6}>
           <MessageSection
             token={invitationToken}
             guestName={invitation?.guestName ?? ''}
@@ -365,10 +454,75 @@ function WeddingInvitationApp() {
               }
             }}
           />
+          </div>
+          <div className={getBookPageClass(7)} data-book-page="gallery" aria-hidden={activePageIndex !== 7}>
           <GallerySection />
+          </div>
+          <div className={getBookPageClass(8)} data-book-page="closing" aria-hidden={activePageIndex !== 8}>
+            <Footer />
+          </div>
+          </div>
         </main>
 
-        <Footer />
+        <div className="book-page-controls" aria-label="Navigasi halaman undangan">
+          <button
+            type="button"
+            onClick={() => goToPage(activePageIndex - 1)}
+            disabled={activePageIndex === 0}
+            aria-label="Halaman sebelumnya"
+            title="Halaman sebelumnya (←)"
+          >
+            ‹
+          </button>
+          <div className="book-page-status" aria-live="polite" aria-atomic="true">
+            <span>HALAMAN {String(activePageIndex + 1).padStart(2, '0')} / {String(bookPageIds.length).padStart(2, '0')}</span>
+            <strong>{bookPageLabels[activePageIndex]}</strong>
+          </div>
+          <button
+            type="button"
+            onClick={() => goToPage(activePageIndex + 1)}
+            disabled={activePageIndex === bookPageIds.length - 1}
+            aria-label="Halaman selanjutnya"
+            title="Halaman selanjutnya (→)"
+          >
+            ›
+          </button>
+        </div>
+        <div className={`book-nav-dock ${bookNavOpen ? 'is-open' : ''}`} onKeyDown={(event) => { if (event.key === 'Escape') setBookNavOpen(false) }}>
+          <button
+            className="book-nav-toggle"
+            type="button"
+            onClick={() => setBookNavOpen((open) => !open)}
+            aria-controls="book-side-navigation"
+            aria-expanded={bookNavOpen}
+            aria-label={bookNavOpen ? 'Tutup navigasi' : 'Buka navigasi'}
+            title={bookNavOpen ? 'Tutup navigasi' : 'Buka navigasi'}
+          >
+            <span aria-hidden="true">{bookNavOpen ? '>' : '<'}</span>
+          </button>
+          <nav id="book-side-navigation" className="floating-nav" aria-label="Navigasi undangan">
+          {navItems.map(({ id, symbol, label }) => {
+            const isActive = activePageIndex === bookPageIds.indexOf(id as (typeof bookPageIds)[number]) ||
+              (activePageIndex === 1 && id === 'home') ||
+              (activePageIndex === 8 && id === 'gallery')
+
+            return (
+              <button
+                key={id}
+                className={isActive ? 'is-active' : ''}
+                type="button"
+                onClick={() => { scrollTo(id); setBookNavOpen(false) }}
+                aria-label={`Buka ${label}`}
+                aria-current={isActive ? 'location' : undefined}
+                title={label}
+              >
+                <span className="floating-nav__icon" aria-hidden="true">{symbol}</span>
+                <span className="floating-nav__mobile-label" aria-hidden="true">{label}</span>
+              </button>
+            )
+          })}
+        </nav>
+        </div>
       </InvitationGate>
     </div>
   )

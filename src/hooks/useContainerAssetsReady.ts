@@ -48,13 +48,15 @@ export function useContainerAssetsReady(
     timeoutMs = 8000,
   }: AssetReadyOptions = {},
 ) {
-  const [ready, setReady] = useState(false);
+  const [readyConfig, setReadyConfig] = useState<{
+    containerRef: RefObject<HTMLElement | null>;
+    minimumDuration: number;
+    timeoutMs: number;
+  } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     let frame = 0;
-
-    setReady(false);
 
     const startedAt = performance.now();
 
@@ -62,7 +64,7 @@ export function useContainerAssetsReady(
       const container = containerRef.current;
 
       if (!container) {
-        setReady(true);
+        setReadyConfig({ containerRef, minimumDuration, timeoutMs });
         return;
       }
 
@@ -98,7 +100,7 @@ export function useContainerAssetsReady(
         }
 
         if (!cancelled) {
-          setReady(true);
+          setReadyConfig({ containerRef, minimumDuration, timeoutMs });
         }
       });
     });
@@ -109,5 +111,10 @@ export function useContainerAssetsReady(
     };
   }, [containerRef, minimumDuration, timeoutMs]);
 
-  return ready;
+  return Boolean(
+    readyConfig &&
+      readyConfig.containerRef === containerRef &&
+      readyConfig.minimumDuration === minimumDuration &&
+      readyConfig.timeoutMs === timeoutMs,
+  );
 }

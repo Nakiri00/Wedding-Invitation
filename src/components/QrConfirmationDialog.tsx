@@ -46,14 +46,21 @@ export function QrConfirmationDialog({
    */
   useEffect(() => {
     if (candidate) {
-      setRenderedCandidate(candidate)
-      setIsClosing(false)
-      return
+      const frame = window.requestAnimationFrame(() => {
+        setRenderedCandidate(candidate)
+        setIsClosing(false)
+      })
+
+      return () => {
+        window.cancelAnimationFrame(frame)
+      }
     }
 
     if (!renderedCandidate) return
 
-    setIsClosing(true)
+    const closingFrame = window.requestAnimationFrame(() => {
+      setIsClosing(true)
+    })
 
     const timeout = window.setTimeout(() => {
       setRenderedCandidate(null)
@@ -61,6 +68,7 @@ export function QrConfirmationDialog({
     }, EXIT_ANIMATION_MS)
 
     return () => {
+      window.cancelAnimationFrame(closingFrame)
       window.clearTimeout(timeout)
     }
   }, [candidate, renderedCandidate])
